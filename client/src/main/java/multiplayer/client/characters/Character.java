@@ -19,6 +19,8 @@ public class Character {
     public Image[] walk;
     public Image[] attack;
 
+    public int direction; //-1 -> links, 1 -> rechts
+
     public int lifepoints = 5;
 
     // State Helper

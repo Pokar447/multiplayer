@@ -96,7 +96,7 @@
             </GridPane>
 
              <HBox alignment="center" spacing="10.0">
-                <Button fx:id="submitBtn" mnemonicParsing="false" onAction="#playerReady" text="submit">
+                <Button fx:id="characterSubmitBtn" mnemonicParsing="false" onAction="#playerReady" text="submit" disable="true">
                   <HBox.margin>
                      <Insets top="35.0" />
                   </HBox.margin></Button>

@@ -5,6 +5,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.paint.Color;
@@ -32,6 +33,7 @@ public class Client extends Application {
     public TextField username;
     public PasswordField password;
     public Text loginInfo;
+    public Button characterSubmitBtn;
 
     // Getter & Setter
     public int getPlayerID() {
@@ -186,6 +188,7 @@ public class Client extends Application {
                 characterId = 4;
                 break;
         }
+        characterSubmitBtn.setDisable(false);
     }
 
     // Login handler
@@ -195,6 +198,16 @@ public class Client extends Application {
         Parent lobby = FXMLLoader.load(getClass().getResource("/multiplayer.client/characterChoice.fxml"));
         Stage primaryStage = (Stage)((Node)event.getSource()).getScene().getWindow();
         Scene scene = new Scene(lobby);
+        primaryStage.setScene(scene);
+        primaryStage.show();
+    }
+
+    public void statistics (javafx.event.ActionEvent event) throws IOException {
+        System.out.println("statistics...");
+
+        Parent statistics = FXMLLoader.load(getClass().getResource("/multiplayer.client/statistics.fxml"));
+        Stage primaryStage = (Stage)((Node)event.getSource()).getScene().getWindow();
+        Scene scene = new Scene(statistics);
         primaryStage.setScene(scene);
         primaryStage.show();
     }

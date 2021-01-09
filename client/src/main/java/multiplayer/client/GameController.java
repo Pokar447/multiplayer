@@ -98,11 +98,15 @@ public class GameController implements Initializable {
             otherPlayer = player2;
             myChoice = client.getMyCharacter();
             otherChoice = client.getOtherCharacter();
+            myCharacter.direction = 1;
+            otherCharacter.direction = -1;
         } else {
             myPlayer = player2;
             otherPlayer = player1;
             myChoice = client.getMyCharacter();
             otherChoice = client.getOtherCharacter();
+            myCharacter.direction = -1;
+            otherCharacter.direction = 1;
         }
     }
 
@@ -156,6 +160,45 @@ public class GameController implements Initializable {
         }
     }
 
+    void setScale (ImageView imageView, int direction, boolean enemyMovement) {
+
+        if (!enemyMovement) {
+            if (direction < 0) {
+                //links
+                if (client.getPlayerID() == 1) {
+                    imageView.setScaleX(-2);
+
+                } else {
+                    imageView.setScaleX(2);
+                }
+            } else if (direction > 0) {
+                //rechts
+                if (client.getPlayerID() == 1) {
+                    imageView.setScaleX(2);
+                } else {
+                    imageView.setScaleX(-2);
+                }
+            }
+        } else {
+            if (direction < 0) {
+                //links
+                if (client.getPlayerID() == 1) {
+                    imageView.setScaleX(2);
+                } else {
+                    imageView.setScaleX(-2);
+                }
+            } else if (direction > 0) {
+                //rechts
+                if (client.getPlayerID() == 1) {
+                    imageView.setScaleX(-2);
+                } else {
+                    imageView.setScaleX(2);
+                }
+            }
+        }
+
+    }
+
     // Move player
     public void movePlayer(String key) {
         if(myIsMoving == false) {
@@ -165,6 +208,10 @@ public class GameController implements Initializable {
             switch (key) {
                 case "LEFT":
                     myCharacter.leftIsPressed = true;
+
+                    myCharacter.direction = -1;
+                    setScale (myPlayer, myCharacter.direction, false);
+
                     myCharacter.startAnimation(myPlayer, myCharacter.idleTimeline, myCharacter.walk, "LEFT");
                     myMoveTimer.scheduleAtFixedRate(new TimerTask() {
                         @Override
@@ -180,6 +227,10 @@ public class GameController implements Initializable {
                     break;
                 case "RIGHT":
                     myCharacter.rightIsPressed = true;
+
+                    myCharacter.direction = 1;
+                    setScale (myPlayer, myCharacter.direction, false);
+
                     myCharacter.startAnimation(myPlayer, myCharacter.idleTimeline, myCharacter.walk, "RIGHT");
                     myMoveTimer.scheduleAtFixedRate(new TimerTask() {
                         @Override
@@ -216,7 +267,7 @@ public class GameController implements Initializable {
         myCharacter.spaceIsPressed = true;
         myCharacter.attackAnimation(myPlayer, myCharacter.attack);
 
-        if (collisionDetected(myPlayer, otherPlayer)) {
+        if (collisionDetected(myPlayer, myCharacter, otherPlayer, otherCharacter)) {
             otherCharacter.lifepoints--;
             System.out.println("Other character LP: " + otherCharacter.lifepoints);
             otherPlayerLifepoints.setText(Integer.toString(otherCharacter.lifepoints));
@@ -224,20 +275,60 @@ public class GameController implements Initializable {
             if (otherCharacter.lifepoints == 0) {
                 playerWonTxt.setText("You win!");
                 playerWonTxt.setVisible(true);
+                startGameOverTimer();
             }
         }
     }
 
-    private boolean collisionDetected (ImageView player1, ImageView player2) {
+    private boolean collisionDetected (ImageView attackingPlayer, Character attackingCharacter, ImageView player2, Character otherCharacter) {
 
-        Bounds player1Bounds = player1.getBoundsInParent();
-        Bounds player2Bounds = player2.getBoundsInParent();
+        boolean directionOk = checkDirection(attackingPlayer, attackingCharacter, player2);
 
-        if (player2Bounds.intersects(player1Bounds.getMinX(), player1Bounds.getMinY(), player1Bounds.getWidth()/3, player1Bounds.getHeight())) {
-            System.out.println("HIT");
-            return true;
+        System.out.println("directionOk " + directionOk);
+
+        if (directionOk) {
+            Bounds player1Bounds = attackingPlayer.getBoundsInParent();
+            Bounds player2Bounds = player2.getBoundsInParent();
+
+            if (player2Bounds.intersects(player1Bounds.getMinX(), player1Bounds.getMinY(), player1Bounds.getWidth(), player1Bounds.getHeight())) {
+                System.out.println("HIT");
+                return true;
+            }
         }
         return false;
+    }
+
+    private boolean checkDirection (ImageView attackingPlayer, Character attackingCharacter, ImageView player2) {
+        if (attackingCharacter.direction > 0) {
+            //guckt nach rechts
+            return attackingPlayer.getLayoutX() < player2.getLayoutX();
+        } else {
+            //guckt nach links
+            return attackingPlayer.getLayoutX() > player2.getLayoutX();
+        }
+    }
+
+    private void startGameOverTimer () {
+        countdown = 10;
+        Timer gameOverTimer = new Timer();
+        TimerTask task = new TimerTask() {
+            @Override
+            public void run() {
+                if (countdown > 0) {
+                    countdown--;
+                    System.out.println("Going back to lobby in " + countdown + "s");
+                }
+                if (countdown == 0) {
+
+                    //todo send back to lobby
+
+                    gameOverTimer.cancel();
+                    gameOverTimer.purge();
+                }
+                System.out.println(countdown);
+            }
+        };
+        gameOverTimer.schedule(task, 0, 1000);
     }
 
     // Stop player attack
@@ -254,6 +345,10 @@ public class GameController implements Initializable {
             switch (keyNumber) {
                 case 0:
                     otherCharacter.leftIsPressed = true;
+
+                    otherCharacter.direction = -1;
+                    setScale (otherPlayer, otherCharacter.direction, true);
+
                     otherCharacter.startAnimation(otherPlayer, otherCharacter.idleTimeline, otherCharacter.walk, "LEFT");
                     System.out.println("0: " + otherCharacter.walk);
                     otherMoveTimer.scheduleAtFixedRate(new TimerTask() {
@@ -270,6 +365,10 @@ public class GameController implements Initializable {
                     break;
                 case 1:
                     otherCharacter.rightIsPressed = true;
+
+                    otherCharacter.direction = 1;
+                    setScale (otherPlayer, otherCharacter.direction, true);
+
                     otherCharacter.startAnimation(otherPlayer, otherCharacter.idleTimeline, otherCharacter.walk, "RIGHT");
                     otherMoveTimer.scheduleAtFixedRate(new TimerTask() {
                         @Override
@@ -305,7 +404,7 @@ public class GameController implements Initializable {
         otherCharacter.spaceIsPressed = true;
         otherCharacter.attackAnimation(otherPlayer, otherCharacter.attack);
 
-        if (collisionDetected(otherPlayer, myPlayer)) {
+        if (collisionDetected(otherPlayer, otherCharacter, myPlayer, myCharacter)) {
             myCharacter.lifepoints--;
             System.out.println("My Character LP: " + myCharacter.lifepoints);
             controller.myPlayerLifepoints.setText(Integer.toString(myCharacter.lifepoints));
@@ -313,6 +412,7 @@ public class GameController implements Initializable {
             if (myCharacter.lifepoints == 0) {
                 controller.playerWonTxt.setText("You lost!");
                 controller.playerWonTxt.setVisible(true);
+                startGameOverTimer();
             }
         }
     }

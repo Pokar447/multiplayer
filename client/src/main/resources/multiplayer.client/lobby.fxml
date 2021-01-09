@@ -63,6 +63,13 @@
                      <Insets top="35.0" />
                   </HBox.margin></Button>
              </HBox>
+
+             <HBox alignment="center" spacing="10.0">
+                 <Button fx:id="statisticsBtn" mnemonicParsing="false" onAction="#statistics" text="Statistic">
+                     <HBox.margin>
+                         <Insets top="35.0" />
+                     </HBox.margin></Button>
+             </HBox>
          </children>
       </VBox>
    </center>
