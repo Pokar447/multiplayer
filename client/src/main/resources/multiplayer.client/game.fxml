@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<Pane id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onKeyPressed="#keyPressed" onKeyReleased="#keyRelease" prefHeight="720.0" prefWidth="1280.0" stylesheets="@game.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="multiplayer.client.GameController">
+    <children>
+      <Text fx:id="countdownTxt" fill="WHITE" layoutX="600.0" layoutY="300.0" text="10">
+         <font>
+            <Font size="96.0" />
+         </font>
+      </Text>
+        <Text fx:id="playerWonTxt" fill="WHITE" layoutX="600.0" layoutY="300.0" visible="false">
+            <font>
+                <Font size="96.0" />
+            </font>
+        </Text>
+        <Text fx:id="myPlayerTxt" fill="WHITE" layoutX="100.0" layoutY="100.0" text="My player">
+            <font>
+                <Font size="36.0" />
+            </font>
+        </Text>
+      <Text fx:id="myPlayerLifepoints" fill="WHITE" layoutX="300.0" layoutY="100.0" text="5">
+         <font>
+            <Font size="36.0" />
+         </font>
+      </Text>
+        <Text fx:id="otherPlayerTxt" fill="WHITE" layoutX="650.0" layoutY="100.0" text="Other player">
+            <font>
+                <Font size="36.0" />
+            </font>
+        </Text>
+      <Text fx:id="otherPlayerLifepoints" fill="WHITE" layoutX="900.0" layoutY="100.0" text="5">
+         <font>
+            <Font size="36.0" />
+         </font>
+      </Text>
+      <ImageView fx:id="player1" fitHeight="100.0" fitWidth="100.0" layoutX="50.0" layoutY="570.0" pickOnBounds="true" preserveRatio="true" scaleX="2.0" scaleY="2.0" />
+      <ImageView fx:id="player2" fitHeight="100.0" fitWidth="100.0" layoutX="1130.0" layoutY="570.0" pickOnBounds="true" preserveRatio="true" rotate="180.0" scaleX="2.0" scaleY="2.0">
+         <rotationAxis>
+            <Point3D y="1.0" />
+         </rotationAxis></ImageView>
+    </children>
+</Pane>

@@ -1,0 +1,12 @@
+#root {
+    -fx-background-image: url("graphics/game_background_3.png");
+    -fx-background-size: 1280 720;
+}
+
+.hide {
+    -fx-opacity: 0;
+}
+
+.playerOne, .playerTwo {
+
+}
