@@ -70,6 +70,13 @@
                          <Insets top="35.0" />
                      </HBox.margin></Button>
              </HBox>
+
+             <HBox alignment="center" spacing="10.0">
+                 <Button fx:id="logoutBtn" mnemonicParsing="false" onAction="#logout" text="Logout">
+                     <HBox.margin>
+                         <Insets top="35.0" />
+                     </HBox.margin></Button>
+             </HBox>
          </children>
       </VBox>
    </center>

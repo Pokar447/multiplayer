@@ -259,6 +259,8 @@ public class Client extends Application {
     public void logout(javafx.event.ActionEvent event) throws IOException {
         System.out.println("Logged out...");
 
+        jwt = null;
+
         Parent login = FXMLLoader.load(getClass().getResource("/multiplayer.client/login.fxml"));
         Stage primaryStage = (Stage)((Node)event.getSource()).getScene().getWindow();
         primaryStage.setScene(new Scene(login));
