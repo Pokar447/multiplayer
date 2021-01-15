@@ -6,13 +6,27 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import org.apache.http.HttpHeaders;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.nio.charset.StandardCharsets;
 
 public class Client extends Application {
 
@@ -30,10 +44,14 @@ public class Client extends Application {
     static int enemyCharacterId;
     static int otherUserReady;
 
+    String jwt;
+
     public TextField username;
     public PasswordField password;
     public Text loginInfo;
     public Button characterSubmitBtn;
+    public TextField email;
+    public Label registerErrorLbl;
 
     // Getter & Setter
     public int getPlayerID() {
@@ -226,7 +244,7 @@ public class Client extends Application {
     public void auth(javafx.event.ActionEvent event) throws IOException {
         System.out.println("Login as " + username.getText() + ", Pwd: " + password.getText());
 
-        if (username.getText().equals("test") && password.getText().equals("test")) {
+        if (sendAuth()) {
             login(event);
         }
         else {
@@ -245,6 +263,83 @@ public class Client extends Application {
         Stage primaryStage = (Stage)((Node)event.getSource()).getScene().getWindow();
         primaryStage.setScene(new Scene(login));
         primaryStage.show();
+    }
+
+    public boolean sendAuth () {
+        System.out.println("sendAuth: " + username.getText() + ", Pwd: " + password.getText());
+
+        try {
+            HttpClient client = new DefaultHttpClient();
+            HttpPost postRequest = new HttpPost(
+                    "http://localhost:8080/login");
+
+            StringEntity input = new StringEntity("{\"username\":\""+ username.getText()+"\",\"password\":\"" + password.getText() + "\"}");
+            input.setContentType("application/json");
+            postRequest.setEntity(input);
+
+            HttpResponse response = client.execute(postRequest);
+
+            int responseStatus = response.getStatusLine().getStatusCode();
+
+            if (responseStatus == 200) {
+                jwt = response.getHeaders(HttpHeaders.AUTHORIZATION)[0].toString();
+                return true;
+            }
+        } catch (MalformedURLException e) {
+
+            e.printStackTrace();
+
+        } catch (IOException e) {
+
+            e.printStackTrace();
+
+        }
+        return false;
+    }
+
+    public void sendRegisterUser () {
+        System.out.println("sendRegisterUser: " + username.getText() + ", Email: " + email.getText()+" Pwd: " + password.getText());
+
+        clearInfo();
+
+        try {
+            HttpClient client = new DefaultHttpClient();
+            HttpPost postRequest = new HttpPost(
+                    "http://localhost:8080/users/sign-up");
+
+            StringEntity input = new StringEntity("{\"username\":\""+ username.getText()+"\",\"email\":\"" + email.getText() +"\",\"password\":\"" + password.getText() + "\"}");
+            input.setContentType("application/json");
+            postRequest.setEntity(input);
+
+            HttpResponse response = client.execute(postRequest);
+
+            int responseStatus = response.getStatusLine().getStatusCode();
+
+            if (responseStatus == 400) {
+                String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
+
+                registerErrorLbl.setVisible(true);
+                registerErrorLbl.setText(responseBody);
+
+            } else if (responseStatus == 200) {
+                registerErrorLbl.setVisible(true);
+                registerErrorLbl.setText("OK");
+            }
+
+        } catch (MalformedURLException e) {
+
+            e.printStackTrace();
+
+        } catch (IOException e) {
+
+            e.printStackTrace();
+
+        }
+    }
+
+    private void clearInfo () {
+        registerErrorLbl.setVisible(false);
+        registerErrorLbl.setText("");
     }
 
     // Register handler

@@ -2,7 +2,7 @@ DROP SCHEMA IF EXISTS `multiplayer`;
 CREATE SCHEMA `multiplayer`;
 USE `multiplayer`;
 
-CREATE TABLE `user` (
+CREATE TABLE `application_user` (
                         `id` INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
                         `username` VARCHAR(20) NOT NULL UNIQUE,
                         `email` VARCHAR(100) NOT NULL UNIQUE,
