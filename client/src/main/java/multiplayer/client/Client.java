@@ -209,7 +209,7 @@ public class Client extends Application {
         characterSubmitBtn.setDisable(false);
     }
 
-    // Login handler
+    // Character choice handler
     public void characterCoice (javafx.event.ActionEvent event) throws IOException {
         System.out.println("Choose xour character...");
 
@@ -220,8 +220,9 @@ public class Client extends Application {
         primaryStage.show();
     }
 
+    // Statistics handler
     public void statistics (javafx.event.ActionEvent event) throws IOException {
-        System.out.println("statistics...");
+        System.out.println("Statistics...");
 
         Parent statistics = FXMLLoader.load(getClass().getResource("/multiplayer.client/statistics.fxml"));
         Stage primaryStage = (Stage)((Node)event.getSource()).getScene().getWindow();
@@ -241,6 +242,7 @@ public class Client extends Application {
         primaryStage.show();
     }
 
+    // Authentication handler
     public void auth(javafx.event.ActionEvent event) throws IOException {
         System.out.println("Login as " + username.getText() + ", Pwd: " + password.getText());
 
@@ -267,6 +269,7 @@ public class Client extends Application {
         primaryStage.show();
     }
 
+    // Send credentials for authentication
     public boolean sendAuth () {
         System.out.println("sendAuth: " + username.getText() + ", Pwd: " + password.getText());
 
@@ -299,6 +302,7 @@ public class Client extends Application {
         return false;
     }
 
+    // Send credentials to register new user
     public void sendRegisterUser () {
         System.out.println("sendRegisterUser: " + username.getText() + ", Email: " + email.getText()+" Pwd: " + password.getText());
 
@@ -354,7 +358,7 @@ public class Client extends Application {
         primaryStage.show();
     }
 
-    public void cancle (javafx.event.ActionEvent event) throws IOException {
+    public void cancel(javafx.event.ActionEvent event) throws IOException {
         Parent login = FXMLLoader.load(getClass().getResource("/multiplayer.client/login.fxml"));
         Stage primaryStage = (Stage)((Node)event.getSource()).getScene().getWindow();
         primaryStage.setScene(new Scene(login));

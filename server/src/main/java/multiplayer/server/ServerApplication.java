@@ -25,26 +25,11 @@ public class ServerApplication {
     int user1Ready = 0;
     int user2Ready = 0;
 
-    int turnsMade;
-    int maxTurns;
-    int[] values;
     int p1ButtonNum;
     int p2ButtonNum;
 
     // Server constructor
     public ServerApplication() {
-        System.out.println("-----Game Server-----");
-
-        playerCount = 0;
-        turnsMade = 0;
-        maxTurns = 4;
-        values = new int[4];
-
-        for(int i = 0; i < values.length; i++) {
-            values[i] = (int) Math.ceil(Math.random() * 100);
-            System.out.println("Value #" + (i+1) + " is " + values[i]);
-        }
-
         try {
             serverSocket = new ServerSocket(8888);
         } catch(IOException exception) {
@@ -58,6 +43,7 @@ public class ServerApplication {
     @EventListener(ApplicationReadyEvent.class)
     public void acceptConnections() {
         try {
+            System.out.println("-----Game Server-----");
             System.out.println("Waiting for Connections...");
 
             while(playerCount < 2) {

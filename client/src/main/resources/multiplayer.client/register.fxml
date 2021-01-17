@@ -14,7 +14,7 @@
 
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.text.Text?>
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="400.0" minWidth="600.0" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="multiplayer.client.Client">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="400.0" minWidth="600.0" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="multiplayer.client.Client">
    <bottom>
       <HBox alignment="CENTER" spacing="5.0" BorderPane.alignment="CENTER">
          <children>
@@ -75,7 +75,7 @@
             </HBox>
             <HBox alignment="CENTER" spacing="10.0">
                <children>
-                  <Button fx:id="cancleButton" mnemonicParsing="false" onAction="#cancle" text="cancle" />
+                  <Button fx:id="cancelButton" mnemonicParsing="false" onAction="#cancel" text="cancel" />
                   <Button fx:id="registerButton" mnemonicParsing="false" onAction="#sendRegisterUser" text="save" />
                </children>
                <opaqueInsets>

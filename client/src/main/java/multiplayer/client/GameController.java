@@ -1,15 +1,22 @@
 package multiplayer.client;
 
 // Java imports
+import java.io.IOException;
 import java.net.*;
 import java.util.*;
 
 // JavaFX imports
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Bounds;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.text.Text;
+import javafx.stage.Stage;
 import multiplayer.client.characters.Character;
 
 public class GameController implements Initializable {
@@ -33,12 +40,13 @@ public class GameController implements Initializable {
     public Text otherPlayerLifepoints;
 
     public Text playerWonTxt;
+    public Button exitGameBtn;
 
     // Move Timer
     public Timer myMoveTimer;
     public Timer otherMoveTimer;
 
-    //width & height of the usable stage for collision detection
+    // Width & height of the usable stage for collision detection
     public static int stageWidth = 1200;
     public static int stageHeight = 720;
 
@@ -161,10 +169,9 @@ public class GameController implements Initializable {
     }
 
     void setScale (ImageView imageView, int direction, boolean enemyMovement) {
-
         if (!enemyMovement) {
             if (direction < 0) {
-                //links
+                // Rinks
                 if (client.getPlayerID() == 1) {
                     imageView.setScaleX(-2);
 
@@ -172,7 +179,7 @@ public class GameController implements Initializable {
                     imageView.setScaleX(2);
                 }
             } else if (direction > 0) {
-                //rechts
+                // Rechts
                 if (client.getPlayerID() == 1) {
                     imageView.setScaleX(2);
                 } else {
@@ -181,14 +188,14 @@ public class GameController implements Initializable {
             }
         } else {
             if (direction < 0) {
-                //links
+                // Links
                 if (client.getPlayerID() == 1) {
                     imageView.setScaleX(2);
                 } else {
                     imageView.setScaleX(-2);
                 }
             } else if (direction > 0) {
-                //rechts
+                // Rechts
                 if (client.getPlayerID() == 1) {
                     imageView.setScaleX(-2);
                 } else {
@@ -300,10 +307,10 @@ public class GameController implements Initializable {
 
     private boolean checkDirection (ImageView attackingPlayer, Character attackingCharacter, ImageView player2) {
         if (attackingCharacter.direction > 0) {
-            //guckt nach rechts
+            // Guckt nach rechts
             return attackingPlayer.getLayoutX() < player2.getLayoutX();
         } else {
-            //guckt nach links
+            // Guckt nach links
             return attackingPlayer.getLayoutX() > player2.getLayoutX();
         }
     }
@@ -321,9 +328,9 @@ public class GameController implements Initializable {
                 if (countdown == 0) {
 
                     //todo send back to lobby
-
                     gameOverTimer.cancel();
                     gameOverTimer.purge();
+                    exitGameBtn.setVisible(true);
                 }
                 System.out.println(countdown);
             }
@@ -334,6 +341,11 @@ public class GameController implements Initializable {
     // Stop player attack
     public void stopPlayerAttack() {
         myCharacter.spaceIsPressed = false;
+    }
+
+    // Exit game handler
+    public void exitGame (javafx.event.ActionEvent event) throws IOException {
+        client.statistics(event);
     }
 
     // Move enemy player

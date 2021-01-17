@@ -84,7 +84,7 @@ class ServerConnection implements Runnable {
             dataOutput.writeInt(characterId);
             dataOutput.flush();
         } catch (IOException exception) {
-            System.out.println("IOException from sendButtonNum() ServerConnection");
+            System.out.println("IOException from sendCharacter() ServerConnection");
         }
     }
 
