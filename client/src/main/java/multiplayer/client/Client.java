@@ -12,6 +12,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import org.apache.commons.validator.routines.EmailValidator;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -306,6 +307,10 @@ public class Client extends Application {
 
         clearInfo();
 
+        String usernameString = username.getText();
+        String passwordString = password.getText();
+        String emailString = email.getText();
+
         /*
             regex explanation:
             Must have at least one numeric character
@@ -315,45 +320,55 @@ public class Client extends Application {
             Password length should be between 8 and 20
         */
         String regex = "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%]).{8,20}$";
-        boolean validPassword = isValidPassword(password.getText(),regex);
+        boolean validPassword = isValidPassword(passwordString,regex);
 
-        if (validPassword) {
+        if (!validPassword) {
+            registerErrorLbl.setVisible(true);
+            registerErrorLbl.setText("password must have at least one numeric character, one lowercase character, one uppercase character, length should be between 8 and 20");
+            return;
+        }
 
-            String pwHash = encryptPassword (password.getText());
+        boolean isValidEmailAddress = isValidEmailAddress(emailString);
+        if (!isValidEmailAddress) {
+            registerErrorLbl.setVisible(true);
+            registerErrorLbl.setText("email is invalid");
+            return;
+        }
 
-            try {
-                HttpClient client = new DefaultHttpClient();
-                HttpPost postRequest = new HttpPost(
-                        "http://localhost:8080/users/sign-up");
+        String pwHash = encryptPassword (passwordString);
 
-                StringEntity input = new StringEntity("{\"username\":\""+ username.getText()+"\",\"email\":\"" + email.getText() +"\",\"password\":\"" + pwHash + "\"}");
-                input.setContentType("application/json");
-                postRequest.setEntity(input);
+        try {
+            HttpClient client = new DefaultHttpClient();
+            HttpPost postRequest = new HttpPost(
+                    "http://localhost:8080/users/sign-up");
 
-                HttpResponse response = client.execute(postRequest);
+            StringEntity input = new StringEntity("{\"username\":\""+ usernameString +"\",\"email\":\"" + emailString +"\",\"password\":\"" + pwHash + "\"}");
+            input.setContentType("application/json");
+            postRequest.setEntity(input);
 
-                int responseStatus = response.getStatusLine().getStatusCode();
+            HttpResponse response = client.execute(postRequest);
 
-                if (responseStatus == 400) {
-                    String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
+            int responseStatus = response.getStatusLine().getStatusCode();
 
-                    registerErrorLbl.setVisible(true);
-                    registerErrorLbl.setText(responseBody);
+            if (responseStatus == 400) {
+                String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
 
-                } else if (responseStatus == 200) {
-                    registerErrorLbl.setVisible(true);
-                    registerErrorLbl.setText("OK");
-                }
+                registerErrorLbl.setVisible(true);
+                registerErrorLbl.setText(responseBody);
 
-            } catch (MalformedURLException e) {
-
-                e.printStackTrace();
-
-            } catch (IOException e) {
-
-                e.printStackTrace();
-
+            } else if (responseStatus == 200) {
+                registerErrorLbl.setVisible(true);
+                registerErrorLbl.setText("OK");
             }
+
+        } catch (MalformedURLException e) {
+
+            e.printStackTrace();
+
+        } catch (IOException e) {
+
+            e.printStackTrace();
+
         }
     }
 
@@ -405,6 +420,14 @@ public class Client extends Application {
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(password);
         return matcher.matches();
+    }
+
+    public static boolean isValidEmailAddress(String email) {
+        // create the EmailValidator instance
+        EmailValidator validator = EmailValidator.getInstance();
+
+        // check for valid email addresses using isValid method
+        return validator.isValid(email);
     }
 
     public void cancel(javafx.event.ActionEvent event) throws IOException {
