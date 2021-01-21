@@ -14,19 +14,18 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Client extends Application {
 
@@ -244,9 +243,10 @@ public class Client extends Application {
 
     // Authentication handler
     public void auth(javafx.event.ActionEvent event) throws IOException {
-        System.out.println("Login as " + username.getText() + ", Pwd: " + password.getText());
 
-        if (sendAuth()) {
+        String pwHash = encryptPassword (password.getText());
+
+        if (sendAuth(pwHash)) {
             login(event);
         }
         else {
@@ -270,15 +270,14 @@ public class Client extends Application {
     }
 
     // Send credentials for authentication
-    public boolean sendAuth () {
-        System.out.println("sendAuth: " + username.getText() + ", Pwd: " + password.getText());
+    public boolean sendAuth (String pwHash) {
 
         try {
             HttpClient client = new DefaultHttpClient();
             HttpPost postRequest = new HttpPost(
                     "http://localhost:8080/login");
 
-            StringEntity input = new StringEntity("{\"username\":\""+ username.getText()+"\",\"password\":\"" + password.getText() + "\"}");
+            StringEntity input = new StringEntity("{\"username\":\""+ username.getText()+"\",\"password\":\"" + pwHash + "\"}");
             input.setContentType("application/json");
             postRequest.setEntity(input);
 
@@ -304,43 +303,87 @@ public class Client extends Application {
 
     // Send credentials to register new user
     public void sendRegisterUser () {
-        System.out.println("sendRegisterUser: " + username.getText() + ", Email: " + email.getText()+" Pwd: " + password.getText());
 
         clearInfo();
 
+        /*
+            regex explanation:
+            Must have at least one numeric character
+            Must have at least one lowercase character
+            Must have at least one uppercase character
+            Must have at least one special symbol among @#$%
+            Password length should be between 8 and 20
+        */
+        String regex = "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%]).{8,20}$";
+        boolean validPassword = isValidPassword(password.getText(),regex);
+
+        if (validPassword) {
+
+            String pwHash = encryptPassword (password.getText());
+
+            try {
+                HttpClient client = new DefaultHttpClient();
+                HttpPost postRequest = new HttpPost(
+                        "http://localhost:8080/users/sign-up");
+
+                StringEntity input = new StringEntity("{\"username\":\""+ username.getText()+"\",\"email\":\"" + email.getText() +"\",\"password\":\"" + pwHash + "\"}");
+                input.setContentType("application/json");
+                postRequest.setEntity(input);
+
+                HttpResponse response = client.execute(postRequest);
+
+                int responseStatus = response.getStatusLine().getStatusCode();
+
+                if (responseStatus == 400) {
+                    String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
+
+                    registerErrorLbl.setVisible(true);
+                    registerErrorLbl.setText(responseBody);
+
+                } else if (responseStatus == 200) {
+                    registerErrorLbl.setVisible(true);
+                    registerErrorLbl.setText("OK");
+                }
+
+            } catch (MalformedURLException e) {
+
+                e.printStackTrace();
+
+            } catch (IOException e) {
+
+                e.printStackTrace();
+
+            }
+        }
+    }
+
+    private String encryptPassword (String password) {
+
+        String algorithm = "SHA";
+
+        byte[] plainText = password.getBytes();
+
         try {
-            HttpClient client = new DefaultHttpClient();
-            HttpPost postRequest = new HttpPost(
-                    "http://localhost:8080/users/sign-up");
+            MessageDigest md = MessageDigest.getInstance(algorithm);
 
-            StringEntity input = new StringEntity("{\"username\":\""+ username.getText()+"\",\"email\":\"" + email.getText() +"\",\"password\":\"" + password.getText() + "\"}");
-            input.setContentType("application/json");
-            postRequest.setEntity(input);
+            md.reset();
+            md.update(plainText);
+            byte[] encodedPassword = md.digest();
 
-            HttpResponse response = client.execute(postRequest);
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < encodedPassword.length; i++) {
+                if ((encodedPassword[i] & 0xff) < 0x10) {
+                    sb.append("0");
+                }
 
-            int responseStatus = response.getStatusLine().getStatusCode();
-
-            if (responseStatus == 400) {
-                String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
-
-                registerErrorLbl.setVisible(true);
-                registerErrorLbl.setText(responseBody);
-
-            } else if (responseStatus == 200) {
-                registerErrorLbl.setVisible(true);
-                registerErrorLbl.setText("OK");
+                sb.append(Long.toString(encodedPassword[i] & 0xff, 16));
             }
 
-        } catch (MalformedURLException e) {
-
+            return sb.toString();
+        } catch (Exception e) {
             e.printStackTrace();
-
-        } catch (IOException e) {
-
-            e.printStackTrace();
-
         }
+        return null;
     }
 
     private void clearInfo () {
@@ -348,7 +391,6 @@ public class Client extends Application {
         registerErrorLbl.setText("");
     }
 
-    // Register handler
     public void register (javafx.event.ActionEvent event) throws IOException {
         System.out.println("register ()");
 
@@ -356,6 +398,13 @@ public class Client extends Application {
         Stage primaryStage = (Stage)((Node)event.getSource()).getScene().getWindow();
         primaryStage.setScene(new Scene(register));
         primaryStage.show();
+    }
+
+    public static boolean isValidPassword(String password,String regex)
+    {
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(password);
+        return matcher.matches();
     }
 
     public void cancel(javafx.event.ActionEvent event) throws IOException {
