@@ -353,33 +353,38 @@ public class GameController implements Initializable {
     public void exitGame (javafx.event.ActionEvent event) throws IOException {
         client.statistics(event);
 
-//        try {
-//            HttpClient client = new DefaultHttpClient();
-//            HttpPost postRequest = new HttpPost(
-//                    "http://localhost:8080/history");
-//
-//            StringEntity input = new StringEntity("{\"username\":\""+ username.getText()+"\",\"password\":\"" + pwHash + "\"}");
-//            input.setContentType("application/json");
-//            postRequest.setEntity(input);
-//
-//            HttpResponse response = client.execute(postRequest);
-//
-//            int responseStatus = response.getStatusLine().getStatusCode();
-//
-//            if (responseStatus == 200) {
-//                jwt = response.getHeaders(HttpHeaders.AUTHORIZATION)[0].toString();
-//                return true;
-//            }
-//        } catch (MalformedURLException e) {
-//
-//            e.printStackTrace();
-//
-//        } catch (IOException e) {
-//
-//            e.printStackTrace();
-//
-//        }
-//        return false;
+        try {
+            HttpClient client = new DefaultHttpClient();
+            HttpPost postRequest = new HttpPost(
+                    "http://localhost:8080/history");
+
+            StringEntity input = new StringEntity("{" +
+                    "\"userId\":\""+ Client.userID +"\"," +
+                    "\"opponentId\":\"" + Client.opponentID + "\"," +
+                    "\"userHp\":\""+ myPlayerLifepoints.getText() +"\"," +
+                    "\"opponentHp\":\""+ otherPlayerLifepoints.getText() +"\"" +
+                    "}");
+            input.setContentType("application/json");
+            postRequest.setEntity(input);
+
+            postRequest.setHeader(HttpHeaders.AUTHORIZATION, Client.jwt);
+
+            HttpResponse response = client.execute(postRequest);
+
+            int responseStatus = response.getStatusLine().getStatusCode();
+
+            System.out.println(responseStatus);
+
+        } catch (MalformedURLException e) {
+
+            e.printStackTrace();
+
+        } catch (IOException e) {
+
+            e.printStackTrace();
+
+        }
+
     }
 
     // Move enemy player

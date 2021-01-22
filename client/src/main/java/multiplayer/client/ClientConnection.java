@@ -61,7 +61,27 @@ class ClientConnection {
         }
     }
 
+    public void sendUserId (int userId) {
+        System.out.println("sendUser: " + userId);
+        try {
+            dataOutput.writeInt(userId);
+            dataOutput.flush();
+        } catch (IOException exception) {
+            System.out.println("IOException from sendButtonNum() ClientConnection");
+        }
+    }
+
     public int receiveCharacter() {
+        int n = -1;
+        try {
+            n = dataInput.readInt();
+        } catch (IOException exception) {
+            System.out.println("IOException from receiveButtonNum() ClientConnection");
+        }
+        return n;
+    }
+
+    public int receiveUserId() {
         int n = -1;
         try {
             n = dataInput.readInt();

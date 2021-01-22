@@ -18,12 +18,15 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.regex.Matcher;
@@ -47,7 +50,7 @@ public class Client extends Application {
     static int enemyCharacterId;
     static int otherUserReady;
 
-    String jwt;
+    static String jwt;
 
     public TextField username;
     public PasswordField password;
@@ -82,6 +85,9 @@ public class Client extends Application {
     }
     public int getOtherCharacterId() {
         return clientConnection.receiveCharacter();
+    }
+    public int getOpponentId() {
+        return clientConnection.receiveUserId();
     }
     public int getOtherUserReady() {
         return clientConnection.receiveUserReady();
@@ -177,9 +183,11 @@ public class Client extends Application {
         }
 
         clientConnection.sendCharacter(characterId);
+        clientConnection.sendUserId(userID);
 
         enemyCharacterId = -1;
         enemyCharacterId = getOtherCharacterId();
+        opponentID = getOpponentId();
 
         System.out.println("Enemy choice is: " + enemyCharacterId);
 
@@ -292,7 +300,7 @@ public class Client extends Application {
             int responseStatus = response.getStatusLine().getStatusCode();
 
             if (responseStatus == 200) {
-                jwt = response.getHeaders(HttpHeaders.AUTHORIZATION)[0].toString();
+                jwt = response.getHeaders(HttpHeaders.AUTHORIZATION)[0].getValue();
                 return true;
             }
         } catch (MalformedURLException e) {
@@ -310,14 +318,18 @@ public class Client extends Application {
     public boolean getUserId(String username) {
         try {
             HttpClient client = new DefaultHttpClient();
-            HttpGet getRequest = new HttpGet("http://localhost:8080/users/username");
+            URIBuilder uriBuilder = new URIBuilder("http://localhost:8080/users");
+            uriBuilder.setParameter("username", username);
+            HttpGet getRequest = new HttpGet(uriBuilder.build());
 
+            getRequest.setHeader(HttpHeaders.AUTHORIZATION, jwt);
             HttpResponse response = client.execute(getRequest);
 
             int responseStatus = response.getStatusLine().getStatusCode();
 
             if (responseStatus == 200) {
-                userID = 1;
+                userID = Integer.parseInt(EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8));
+                System.out.println(userID);
                 return true;
             }
         } catch (MalformedURLException e) {
@@ -328,6 +340,8 @@ public class Client extends Application {
 
             e.printStackTrace();
 
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
         }
         return false;
     }
