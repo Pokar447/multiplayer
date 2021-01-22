@@ -18,6 +18,12 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import multiplayer.client.characters.Character;
+import org.apache.http.HttpHeaders;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
 
 public class GameController implements Initializable {
 
@@ -316,7 +322,7 @@ public class GameController implements Initializable {
     }
 
     private void startGameOverTimer () {
-        countdown = 10;
+        countdown = 5;
         Timer gameOverTimer = new Timer();
         TimerTask task = new TimerTask() {
             @Override
@@ -346,6 +352,34 @@ public class GameController implements Initializable {
     // Exit game handler
     public void exitGame (javafx.event.ActionEvent event) throws IOException {
         client.statistics(event);
+
+//        try {
+//            HttpClient client = new DefaultHttpClient();
+//            HttpPost postRequest = new HttpPost(
+//                    "http://localhost:8080/history");
+//
+//            StringEntity input = new StringEntity("{\"username\":\""+ username.getText()+"\",\"password\":\"" + pwHash + "\"}");
+//            input.setContentType("application/json");
+//            postRequest.setEntity(input);
+//
+//            HttpResponse response = client.execute(postRequest);
+//
+//            int responseStatus = response.getStatusLine().getStatusCode();
+//
+//            if (responseStatus == 200) {
+//                jwt = response.getHeaders(HttpHeaders.AUTHORIZATION)[0].toString();
+//                return true;
+//            }
+//        } catch (MalformedURLException e) {
+//
+//            e.printStackTrace();
+//
+//        } catch (IOException e) {
+//
+//            e.printStackTrace();
+//
+//        }
+//        return false;
     }
 
     // Move enemy player

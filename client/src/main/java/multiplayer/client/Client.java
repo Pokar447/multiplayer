@@ -16,6 +16,7 @@ import org.apache.commons.validator.routines.EmailValidator;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -35,6 +36,8 @@ public class Client extends Application {
 
     static int playerID;
     static int otherID;
+    static int userID;
+    static int opponentID;
     static int connectionStatus;
 
     static String character;
@@ -248,7 +251,9 @@ public class Client extends Application {
         String pwHash = encryptPassword (password.getText());
 
         if (sendAuth(pwHash)) {
-            login(event);
+            if (getUserId(username.getText())) {
+                login(event);
+            }
         }
         else {
             loginInfo.setText("Bad credentials!");
@@ -302,6 +307,31 @@ public class Client extends Application {
         return false;
     }
 
+    public boolean getUserId(String username) {
+        try {
+            HttpClient client = new DefaultHttpClient();
+            HttpGet getRequest = new HttpGet("http://localhost:8080/users/username");
+
+            HttpResponse response = client.execute(getRequest);
+
+            int responseStatus = response.getStatusLine().getStatusCode();
+
+            if (responseStatus == 200) {
+                userID = 1;
+                return true;
+            }
+        } catch (MalformedURLException e) {
+
+            e.printStackTrace();
+
+        } catch (IOException e) {
+
+            e.printStackTrace();
+
+        }
+        return false;
+    }
+
     // Send credentials to register new user
     public void sendRegisterUser () {
 
@@ -319,7 +349,7 @@ public class Client extends Application {
             Must have at least one special symbol among @#$%
             Password length should be between 8 and 20
         */
-        String regex = "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%]).{8,20}$";
+        String regex = "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%]).{8,20}$";
         boolean validPassword = isValidPassword(passwordString,regex);
 
         if (!validPassword) {

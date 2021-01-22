@@ -1,37 +1,39 @@
 package multiplayer.server.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.Getter;
+import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
-import java.util.Date;
+import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 
+@Getter
+@Setter
 @Entity
 public class History {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    long id;
 
-    @Temporal(TemporalType.DATE)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "Europe/Berlin")
-    private Date date = new Date();
+    @NotNull
+    @Column(length = 20, nullable = false)
+    int userId;
 
-    private String description;
+    @NotNull
+    @Column(length = 20, nullable = false)
+    int opponentId;
 
-    protected History() { }
+    @NotNull
+    @Column(length = 20, nullable = false)
+    int userHp;
 
-    public History(String description) {
-        this.description = description;
-    }
+    @NotNull
+    @Column(length = 20, nullable = false)
+    int opponentHp;
 
-    public long getId() {
-        return id;
-    }
+    @CreationTimestamp
+    @Column
+    LocalDateTime dateTime = LocalDateTime.now();
 
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
 }
