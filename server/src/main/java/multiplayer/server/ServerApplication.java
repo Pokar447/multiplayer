@@ -35,9 +35,6 @@ public class ServerApplication {
         } catch(IOException exception) {
             System.out.println("IOException from Game Server Constructor!");
         }
-
-        // Hierauf wartet Tomcat
-        //acceptConnections();
     }
 
     @EventListener(ApplicationReadyEvent.class)
