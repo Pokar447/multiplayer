@@ -28,7 +28,7 @@ class UserControllerTest {
     String jwt;
 
     //Funktioniert nur beim ersten Aufruf, danach muss der User vor erneutem Aufruf gelöscht werden
-    @Test
+/*    @Test
     public void testSignUp() throws Exception {
 
         MvcResult result = this.mockMvc.perform(post("/users/sign-up")
@@ -38,10 +38,34 @@ class UserControllerTest {
                     .andReturn();
 
         String content = result.getResponse().getContentAsString();
+    }*/
+
+    @Test
+    public void testSignUpUsernameTooShort() throws Exception {
+
+        MvcResult result = this.mockMvc.perform(post("/users/sign-up")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"username\":\"m\",\"email\":\"michael@michael.de\",\"password\":\"Michael99\"}"))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+
+        String content = result.getResponse().getContentAsString();
     }
 
     @Test
-    public void testUniqueSignUp() throws Exception {
+    public void testSignUpUsernameEmailInvalid() throws Exception {
+
+        MvcResult result = this.mockMvc.perform(post("/users/sign-up")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"username\":\"m\",\"email\":\"michael@michael\",\"password\":\"Michael99\"}"))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+
+        String content = result.getResponse().getContentAsString();
+    }
+
+    @Test
+    public void testSignUpNotUniqueUsernameAndEmail() throws Exception {
 
         MvcResult result = this.mockMvc.perform(post("/users/sign-up")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -50,6 +74,17 @@ class UserControllerTest {
                 .andReturn();
 
         String content = result.getResponse().getContentAsString();
+    }
+
+    @Test
+    public void testLoginInvalidCredentials () throws Exception {
+        MvcResult result = this.mockMvc.perform(post("/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"username\":\"m\",\"password\":\"Michael99\"}"))
+                .andExpect(status().isUnauthorized())
+                .andReturn();
+
+        jwt = result.getResponse().getHeader("Authorization");
     }
 
     @Test
