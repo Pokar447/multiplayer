@@ -2,8 +2,11 @@ package multiplayer.server.controller;
 
 import multiplayer.server.model.History;
 import multiplayer.server.repository.HistoryRepository;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.ws.rs.Path;
 import java.util.List;
 
 @RestController
@@ -21,9 +24,21 @@ public class HistoryController {
         historyRepository.save(history);
     }
 
+//    @GetMapping
+//    public List<History> getHistories() {
+//        return historyRepository.findAll();
+//    }
+
     @GetMapping
-    public List<History> getHistories() {
-        return historyRepository.findAll();
+    @Path("{userid}")
+    public ResponseEntity getByUserId(@RequestParam("userid") Integer userId) {
+        System.out.println("TEST JORN: " + userId);
+        List<History> history = historyRepository.findByUserId(userId);
+        if (history != null) {
+            return new ResponseEntity(history, HttpStatus.OK);
+        } else {
+            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        }
     }
 
 }
