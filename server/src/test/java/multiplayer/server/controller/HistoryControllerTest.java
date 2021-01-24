@@ -1,5 +1,6 @@
 package multiplayer.server.controller;
 
+import org.apache.commons.text.RandomStringGenerator;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -9,6 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import static org.apache.commons.text.CharacterPredicates.DIGITS;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -38,10 +40,21 @@ class HistoryControllerTest {
 
         testLogin();
 
+        RandomStringGenerator generator = new RandomStringGenerator.Builder()
+                .withinRange('0', 'z')
+                .filteredBy(DIGITS)
+                .build();
+
+        String randomString = generator.generate(32);
+
+        //verstecke userId an Stelle 1 und opponentId an Stelle 28
+        String secret = randomString.substring(0,1) + "44" + randomString.substring(2,28) + "45" + randomString.substring(29);
+
         MvcResult result = this.mockMvc.perform(post("/history")
                 .header(HttpHeaders.AUTHORIZATION, jwt)
+                .header("secret", secret)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"userId\":\"1\",\"opponentId\":\"2\",\"userHp\":\"0\",\"opponentHp\":\"5\"}"))
+                .content("{\"userId\":\"44\",\"opponentId\":\"45\",\"userHp\":\"0\",\"opponentHp\":\"5\"}"))
                 .andExpect(status().isOk())
                 .andReturn();
 

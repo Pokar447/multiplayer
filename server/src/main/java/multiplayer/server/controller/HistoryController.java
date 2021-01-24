@@ -25,19 +25,29 @@ public class HistoryController {
     }
 
     @PostMapping
-    public ResponseEntity addHistory(@RequestBody History history) {
+    public ResponseEntity addHistory(@RequestBody History history, @RequestHeader("secret") String secret) {
 
-        boolean userIdValid =userService.userIdExists((long) history.getUserId());
-        boolean opponentIdValid = userService.userIdExists((long) history.getOpponentId());
+        boolean secretIsValid = secretIsValid(history, secret);
 
-        if (userIdValid && opponentIdValid) {
-            historyRepository.save(history);
-            return new ResponseEntity(history, HttpStatus.OK);
+        System.out.println("Secret is valid: " + secretIsValid);
+
+        if (secretIsValid) {
+
+            boolean userIdValid =userService.userIdExists((long) history.getUserId());
+            boolean opponentIdValid = userService.userIdExists((long) history.getOpponentId());
+
+            if (userIdValid && opponentIdValid) {
+                System.out.println("user ok");
+                historyRepository.save(history);
+                return new ResponseEntity(history, HttpStatus.OK);
+            }
+            else {
+                System.out.println("at least one user is unknown");
+                return new ResponseEntity(HttpStatus.BAD_REQUEST);
+            }
+        } else {
+            return new ResponseEntity(HttpStatus.FORBIDDEN);
         }
-        else {
-            return new ResponseEntity(HttpStatus.BAD_REQUEST);
-        }
-
     }
 
     @GetMapping
@@ -55,6 +65,14 @@ public class HistoryController {
         } else {
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
+    }
+
+    private boolean secretIsValid (History history, String secret) {
+
+        boolean userIdFound = secret.substring(1).indexOf(String.valueOf(history.getUserId())) == 0;
+        boolean opponentIdFound = secret.substring(29).indexOf(String.valueOf(history.getOpponentId())) == 0;
+
+        return userIdFound && opponentIdFound;
     }
 
 }

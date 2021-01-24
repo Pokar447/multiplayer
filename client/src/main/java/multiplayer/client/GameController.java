@@ -19,12 +19,15 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import multiplayer.client.characters.Character;
+import org.apache.commons.text.RandomStringGenerator;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
+
+import static org.apache.commons.text.CharacterPredicates.DIGITS;
 
 public class GameController implements Initializable {
 
@@ -368,7 +371,17 @@ public class GameController implements Initializable {
             input.setContentType("application/json");
             postRequest.setEntity(input);
 
+            RandomStringGenerator generator = new RandomStringGenerator.Builder()
+                    .withinRange('0', 'z')
+                    .filteredBy(DIGITS)
+                    .build();
+
+            String randomString = generator.generate(32);
+
+            String secret = randomString.substring(0,1) + Client.userID + randomString.substring(2,28) + Client.opponentID + randomString.substring(29);
+
             postRequest.setHeader(HttpHeaders.AUTHORIZATION, Client.jwt);
+            postRequest.setHeader("secret", secret);
 
             HttpResponse response = client.execute(postRequest);
 
