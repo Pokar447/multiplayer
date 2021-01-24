@@ -351,7 +351,7 @@ public class Client extends Application {
     // Authentication handler
     public void auth(javafx.event.ActionEvent event) throws IOException {
 
-        String pwHash = encryptPassword (password.getText());
+        String pwHash = new CustomPasswordEncryptor().encryptPassword (password.getText());
 
         if (sendAuth(pwHash)) {
             if (getUserId(username.getText())) {
@@ -479,7 +479,7 @@ public class Client extends Application {
             Password length should be between 8 and 20
         */
         String regex = "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%]).{8,20}$";
-        boolean validPassword = isValidPassword(passwordString,regex);
+        boolean validPassword = new CustomInputValidator().isValidPassword(passwordString,regex);
 
         if (usernameString.equals("")) {
             registerErrorLbl.setVisible(true);
@@ -493,14 +493,14 @@ public class Client extends Application {
             return;
         }
 
-        boolean isValidEmailAddress = isValidEmailAddress(emailString);
+        boolean isValidEmailAddress = new CustomInputValidator().isValidEmailAddress(emailString);
         if (!isValidEmailAddress) {
             registerErrorLbl.setVisible(true);
             registerErrorLbl.setText("email is invalid");
             return;
         }
 
-        String pwHash = encryptPassword (passwordString);
+        String pwHash = new CustomPasswordEncryptor().encryptPassword (passwordString);
 
         try {
             HttpClient client = new DefaultHttpClient();
@@ -537,35 +537,6 @@ public class Client extends Application {
         }
     }
 
-    private String encryptPassword (String password) {
-
-        String algorithm = "SHA";
-
-        byte[] plainText = password.getBytes();
-
-        try {
-            MessageDigest md = MessageDigest.getInstance(algorithm);
-
-            md.reset();
-            md.update(plainText);
-            byte[] encodedPassword = md.digest();
-
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < encodedPassword.length; i++) {
-                if ((encodedPassword[i] & 0xff) < 0x10) {
-                    sb.append("0");
-                }
-
-                sb.append(Long.toString(encodedPassword[i] & 0xff, 16));
-            }
-
-            return sb.toString();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
     private void clearInfo () {
         registerErrorLbl.setVisible(false);
         registerErrorLbl.setText("");
@@ -578,21 +549,6 @@ public class Client extends Application {
         Stage primaryStage = (Stage)((Node)event.getSource()).getScene().getWindow();
         primaryStage.setScene(new Scene(register));
         primaryStage.show();
-    }
-
-    public static boolean isValidPassword(String password,String regex)
-    {
-        Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(password);
-        return matcher.matches();
-    }
-
-    public static boolean isValidEmailAddress(String email) {
-        // create the EmailValidator instance
-        EmailValidator validator = EmailValidator.getInstance();
-
-        // check for valid email addresses using isValid method
-        return validator.isValid(email);
     }
 
     public void cancel(javafx.event.ActionEvent event) throws IOException {
