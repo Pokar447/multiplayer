@@ -274,7 +274,7 @@ public class Client extends Application {
         }
 
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/multiplayer.client/statistics.fxml"));
-//        loader.setController(this);
+        loader.setController(this);
         Parent statistics = loader.load();
 
         // My HP column
@@ -294,7 +294,9 @@ public class Client extends Application {
         col4.setMinWidth(150);
         col4.setCellValueFactory(new PropertyValueFactory<>("date"));
 
-        historyTable.setItems(getHistory());
+        ObservableList<History> history = getHistory();
+
+        historyTable.setItems(history);
         historyTable.getColumns().addAll(col1, col2, col3, col4);
 
         Stage primaryStage = (Stage)((Node)event.getSource()).getScene().getWindow();
