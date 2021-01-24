@@ -24,7 +24,9 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.json.*;
+import org.apache.commons.io.FileUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.net.MalformedURLException;
@@ -45,6 +47,7 @@ public class Client extends Application {
     static int playerID;
     static int otherID;
     static int userID;
+    static File profileImg;
     static int opponentID;
     static int connectionStatus;
 
@@ -65,14 +68,6 @@ public class Client extends Application {
     public Text siegeTxt;
     @FXML
     public Text niederlagenTxt;
-//    @FXML
-//    public TableColumn<History, Integer> col1;
-//    @FXML
-//    public TableColumn<History, Integer> col2;
-//    @FXML
-//    public TableColumn<History, Integer> col3;
-//    @FXML
-//    public TableColumn<History, String> col4;
 
     public TextField username;
     public PasswordField password;
@@ -347,6 +342,7 @@ public class Client extends Application {
 
         if (sendAuth(pwHash)) {
             if (getUserId(username.getText())) {
+                getProfileImg();
                 login(event);
             }
         }
@@ -430,6 +426,25 @@ public class Client extends Application {
             e.printStackTrace();
         }
         return false;
+    }
+
+    public void getProfileImg() {
+        try {
+            HttpClient client = new DefaultHttpClient();
+            HttpGet getRequest = new HttpGet("http://localhost:8080/users/image");
+
+            getRequest.setHeader(HttpHeaders.AUTHORIZATION, jwt);
+            HttpResponse response = client.execute(getRequest);
+
+            int responseStatus = response.getStatusLine().getStatusCode();
+
+            if (responseStatus == 200) {
+                byte[] profileImgByte = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8).getBytes(StandardCharsets.UTF_8);
+                FileUtils.writeByteArrayToFile(new File("profile_picture.png"), profileImgByte);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     // Send credentials to register new user

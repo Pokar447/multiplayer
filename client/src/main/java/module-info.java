@@ -7,6 +7,7 @@ module multiplayer.client {
     requires commons.validator;
     requires org.json;
     requires org.apache.commons.text;
+    requires commons.io;
 
     opens multiplayer.client to javafx.fxml;
     exports multiplayer.client;

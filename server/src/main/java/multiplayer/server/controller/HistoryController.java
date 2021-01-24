@@ -33,8 +33,8 @@ public class HistoryController {
 
         if (secretIsValid) {
 
-            boolean userIdValid =userService.userIdExists((long) history.getUserId());
-            boolean opponentIdValid = userService.userIdExists((long) history.getOpponentId());
+        boolean userIdValid =userService.userIdExists((long) history.getUserId());
+        boolean opponentIdValid = userService.userIdExists((long) history.getOpponentId());
 
             if (userIdValid && opponentIdValid) {
                 System.out.println("user ok");
@@ -53,8 +53,6 @@ public class HistoryController {
     @GetMapping
     @Path("{userid}")
     public ResponseEntity getByUserId(@RequestParam("userid") Integer userId) {
-        System.out.println("TEST JORN: " + userId);
-
         if (userService.userIdExists(Long.valueOf(userId))) {
             List<History> history = historyRepository.findByUserId(userId);
             if (history != null) {
