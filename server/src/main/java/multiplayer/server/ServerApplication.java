@@ -11,6 +11,14 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+/**
+ * Main Server Application class
+ *
+ * @author      Nora Kühnel <nora.kuhnel@stud.th-luebeck.de>
+ * @author      Jorn Ihlenfeldt <<jorn.ihlenfeldt@stud.th-luebeck.de>
+ *
+ * @version     1.0
+ */
 @SpringBootApplication
 public class ServerApplication {
 
@@ -28,7 +36,9 @@ public class ServerApplication {
     int p1ButtonNum;
     int p2ButtonNum;
 
-    // Server constructor
+    /**
+     * Server Application constructor
+     */
     public ServerApplication() {
         try {
             serverSocket = new ServerSocket(8888);
@@ -37,6 +47,9 @@ public class ServerApplication {
         }
     }
 
+    /**
+     * Main access point for clients to connect to the server
+     */
     @EventListener(ApplicationReadyEvent.class)
     public void acceptConnections() {
         try {
@@ -61,10 +74,18 @@ public class ServerApplication {
         }
     }
 
+    /**
+     * Main methode of the Server Application
+     */
     public static void main(String[] args) {
         SpringApplication.run(ServerApplication.class, args);
     }
 
+    /**
+     * BCryptPasswordEncoder for encoding user passwords
+     *
+     * @return BCryptPasswordEncoder Instance of BCryptPasswordEncoder
+     */
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
         return new BCryptPasswordEncoder();
