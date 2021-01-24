@@ -26,12 +26,15 @@ import org.apache.http.util.EntityUtils;
 import org.json.*;
 import org.apache.commons.io.FileUtils;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -439,7 +442,10 @@ public class Client extends Application {
             int responseStatus = response.getStatusLine().getStatusCode();
 
             if (responseStatus == 200) {
-                byte[] profileImgByte = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8).getBytes(StandardCharsets.UTF_8);
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                response.getEntity().writeTo(baos);
+                byte[] profileImgByte = baos.toByteArray();
+
                 FileUtils.writeByteArrayToFile(new File("profile_picture.png"), profileImgByte);
             }
         } catch (Exception e) {
