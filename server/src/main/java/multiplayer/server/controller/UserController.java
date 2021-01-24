@@ -3,6 +3,8 @@ package multiplayer.server.controller;
 import multiplayer.server.model.ApplicationUser;
 import multiplayer.server.model.History;
 import multiplayer.server.repository.ApplicationUserRepository;
+import multiplayer.server.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -23,6 +25,9 @@ import java.util.stream.StreamSupport;
 @RequestMapping("/users")
 public class UserController {
 
+    @Autowired
+    private UserService userService;
+
     private ApplicationUserRepository applicationUserRepository;
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
@@ -35,10 +40,10 @@ public class UserController {
     @PostMapping("/sign-up")
     public ResponseEntity signUp(@Valid @RequestBody ApplicationUser user, BindingResult bindingResult) {
 
-        if (getUserByUsername(user.getUsername()) != null) {
+        if (userService.getUserByUsername(user.getUsername()) != null) {
             return new ResponseEntity("username already exists", HttpStatus.BAD_REQUEST);
         }
-        if (getUserByEmail(user.getEmail()) != null) {
+        if (userService.getUserByEmail(user.getEmail()) != null) {
             return new ResponseEntity("email already exists", HttpStatus.BAD_REQUEST);
         }
 
@@ -62,7 +67,7 @@ public class UserController {
     @GetMapping
     @Path("{username}")
     public ResponseEntity getIdByUsername(@PathParam("username") String username) {
-        ApplicationUser user = getUserByUsername(username);
+        ApplicationUser user = userService.getUserByUsername(username);
         if (user != null) {
             return new ResponseEntity(user.getId(), HttpStatus.OK);
         } else {
@@ -70,11 +75,4 @@ public class UserController {
         }
     }
 
-    public ApplicationUser getUserByUsername (@PathVariable String username) {
-        return applicationUserRepository.findByUsername(username);
-    }
-
-    public ApplicationUser getUserByEmail (@PathVariable String email) {
-        return applicationUserRepository.findByEmail(email);
-    }
 }
