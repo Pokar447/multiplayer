@@ -18,9 +18,6 @@
              </Label>
 
              <ImageView fx:id="avatarImgView" fitHeight="96" fitWidth="144" GridPane.columnIndex="0" GridPane.rowIndex="0">
-                 <image>
-                     <Image url="@graphics/golem/Idle/Golem_01_Idle_0.png" />
-                 </image>
              </ImageView>
 
              <HBox alignment="center" spacing="10.0">
