@@ -6,6 +6,7 @@ import java.net.*;
 import java.util.*;
 
 // JavaFX imports
+import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Bounds;

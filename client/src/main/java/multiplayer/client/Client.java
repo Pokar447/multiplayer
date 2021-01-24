@@ -1,14 +1,15 @@
 package multiplayer.client;
 
 import javafx.application.Application;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
@@ -22,13 +23,15 @@ import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
+import org.json.*;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -51,6 +54,19 @@ public class Client extends Application {
     static int otherUserReady;
 
     static String jwt;
+
+    JSONArray historyJsonArray;
+    JSONObject historyJsonObject;
+    @FXML
+    public TableView<History> historyTable;
+//    @FXML
+//    public TableColumn<History, Integer> col1;
+//    @FXML
+//    public TableColumn<History, Integer> col2;
+//    @FXML
+//    public TableColumn<History, Integer> col3;
+//    @FXML
+//    public TableColumn<History, String> col4;
 
     public TextField username;
     public PasswordField password;
@@ -222,7 +238,7 @@ public class Client extends Application {
 
     // Character choice handler
     public void characterCoice (javafx.event.ActionEvent event) throws IOException {
-        System.out.println("Choose xour character...");
+        System.out.println("Choose your character...");
 
         Parent lobby = FXMLLoader.load(getClass().getResource("/multiplayer.client/characterChoice.fxml"));
         Stage primaryStage = (Stage)((Node)event.getSource()).getScene().getWindow();
@@ -235,11 +251,66 @@ public class Client extends Application {
     public void statistics (javafx.event.ActionEvent event) throws IOException {
         System.out.println("Statistics...");
 
-        Parent statistics = FXMLLoader.load(getClass().getResource("/multiplayer.client/statistics.fxml"));
+        try {
+            HttpClient client = new DefaultHttpClient();
+            URIBuilder uriBuilder = new URIBuilder("http://localhost:8080/history");
+            uriBuilder.setParameter("userid", Integer.toString(userID));
+            HttpGet getRequest = new HttpGet(uriBuilder.build());
+
+            getRequest.setHeader(HttpHeaders.AUTHORIZATION, jwt);
+            HttpResponse response = client.execute(getRequest);
+
+            int responseStatus = response.getStatusLine().getStatusCode();
+
+            if (responseStatus == 200) {
+                historyJsonArray = new JSONArray(EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8));
+            }
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/multiplayer.client/statistics.fxml"));
+//        loader.setController(this);
+        Parent statistics = loader.load();
+
+        // My HP column
+        TableColumn<History, Integer> col1 = new TableColumn<>("My HP");
+        col1.setMinWidth(150);
+        col1.setCellValueFactory(new PropertyValueFactory<>("userHp"));
+        // Opponent ID column
+        TableColumn<History, Integer> col2 = new TableColumn<>("Opponent ID");
+        col2.setMinWidth(150);
+        col2.setCellValueFactory(new PropertyValueFactory<>("opponentId"));
+        // Opponent HP column
+        TableColumn<History, Integer> col3 = new TableColumn<>("Opponent HP");
+        col3.setMinWidth(150);
+        col3.setCellValueFactory(new PropertyValueFactory<>("opponentHp"));
+        // Date/Time column
+        TableColumn<History, Integer> col4 = new TableColumn<>("Date/Time");
+        col4.setMinWidth(150);
+        col4.setCellValueFactory(new PropertyValueFactory<>("date"));
+
+        historyTable.setItems(getHistory());
+        historyTable.getColumns().addAll(col1, col2, col3, col4);
+
         Stage primaryStage = (Stage)((Node)event.getSource()).getScene().getWindow();
         Scene scene = new Scene(statistics);
         primaryStage.setScene(scene);
         primaryStage.show();
+
+    }
+
+    public ObservableList<History> getHistory() {
+        ObservableList<History> history = FXCollections.observableArrayList();
+        for(int i=0; i<historyJsonArray.length(); i++) {
+            historyJsonObject = historyJsonArray.getJSONObject(i);
+            history.add(new History(historyJsonObject.optInt("id"), historyJsonObject.optInt("userId"), historyJsonObject.optInt("opponentId"), historyJsonObject.optInt("userHp"), historyJsonObject.optInt("opponentHp"), historyJsonObject.optString("dateTime")));
+        }
+        return history;
     }
 
     // Login handler
@@ -329,7 +400,6 @@ public class Client extends Application {
 
             if (responseStatus == 200) {
                 userID = Integer.parseInt(EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8));
-                System.out.println(userID);
                 return true;
             }
         } catch (MalformedURLException e) {

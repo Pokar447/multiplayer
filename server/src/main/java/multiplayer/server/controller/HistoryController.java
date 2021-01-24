@@ -24,15 +24,9 @@ public class HistoryController {
         historyRepository.save(history);
     }
 
-//    @GetMapping
-//    public List<History> getHistories() {
-//        return historyRepository.findAll();
-//    }
-
     @GetMapping
     @Path("{userid}")
     public ResponseEntity getByUserId(@RequestParam("userid") Integer userId) {
-        System.out.println("TEST JORN: " + userId);
         List<History> history = historyRepository.findByUserId(userId);
         if (history != null) {
             return new ResponseEntity(history, HttpStatus.OK);
