@@ -10,6 +10,8 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
@@ -26,6 +28,7 @@ import org.apache.http.util.EntityUtils;
 import org.json.*;
 import org.apache.commons.io.FileUtils;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -62,6 +65,7 @@ public class Client extends Application {
     static int otherUserReady;
 
     static String jwt;
+    public ImageView avatarImgView;
 
     JSONArray historyJsonArray;
     JSONObject historyJsonObject;
@@ -331,11 +335,17 @@ public class Client extends Application {
     public void login(javafx.event.ActionEvent event) throws IOException {
         System.out.println("Logged in as Player #" + this.getPlayerID());
 
-        Parent lobby = FXMLLoader.load(getClass().getResource("/multiplayer.client/lobby.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/multiplayer.client/lobby.fxml"));
+        loader.setController(this);
+        Parent lobby = loader.load();
+
         Stage primaryStage = (Stage)((Node)event.getSource()).getScene().getWindow();
         Scene scene = new Scene(lobby);
         primaryStage.setScene(scene);
         primaryStage.show();
+
+        byte[] profileImgByte = getProfileImg();
+        avatarImgView.setImage(new Image(new ByteArrayInputStream(profileImgByte)));
     }
 
     // Authentication handler
@@ -345,7 +355,6 @@ public class Client extends Application {
 
         if (sendAuth(pwHash)) {
             if (getUserId(username.getText())) {
-                getProfileImg();
                 login(event);
             }
         }
@@ -431,7 +440,7 @@ public class Client extends Application {
         return false;
     }
 
-    public void getProfileImg() {
+    public byte[] getProfileImg() {
         try {
             HttpClient client = new DefaultHttpClient();
             HttpGet getRequest = new HttpGet("http://localhost:8080/users/image");
@@ -444,13 +453,12 @@ public class Client extends Application {
             if (responseStatus == 200) {
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 response.getEntity().writeTo(baos);
-                byte[] profileImgByte = baos.toByteArray();
-
-                FileUtils.writeByteArrayToFile(new File("profile_picture.png"), profileImgByte);
+                return baos.toByteArray();
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return new byte[0];
     }
 
     // Send credentials to register new user
