@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -28,7 +29,7 @@ class UserControllerTest {
     String jwt;
 
     //Funktioniert nur beim ersten Aufruf, danach muss der User vor erneutem Aufruf gelöscht werden
-/*    @Test
+    @Test
     public void testSignUp() throws Exception {
 
         MvcResult result = this.mockMvc.perform(post("/users/sign-up")
@@ -38,7 +39,7 @@ class UserControllerTest {
                     .andReturn();
 
         String content = result.getResponse().getContentAsString();
-    }*/
+    }
 
     @Test
     public void testSignUpUsernameTooShort() throws Exception {
@@ -84,7 +85,7 @@ class UserControllerTest {
                 .andExpect(status().isUnauthorized())
                 .andReturn();
 
-        jwt = result.getResponse().getHeader("Authorization");
+        jwt = result.getResponse().getHeader(HttpHeaders.AUTHORIZATION);
     }
 
     @Test
@@ -95,31 +96,44 @@ class UserControllerTest {
                 .andExpect(status().isOk())
                 .andReturn();
 
-        jwt = result.getResponse().getHeader("Authorization");
+        jwt = result.getResponse().getHeader(HttpHeaders.AUTHORIZATION);
     }
 
     @Test
-    public void testGetUserNamesWithoutJwt () throws Exception {
+    public void testGetIdByUsername () throws Exception {
 
         testLogin();
 
         MvcResult result = this.mockMvc.perform(get("/users")
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isForbidden())
+                .header(HttpHeaders.AUTHORIZATION, jwt)
+                .contentType(MediaType.APPLICATION_JSON)
+                .param("username", "michael"))
+                .andExpect(status().isOk())
+                .andReturn();
+    }
+
+    @Test
+    public void testGetIdByUsernameWithUnknownUsername () throws Exception {
+
+        testLogin();
+
+        MvcResult result = this.mockMvc.perform(get("/users")
+                .header(HttpHeaders.AUTHORIZATION, jwt)
+                .contentType(MediaType.APPLICATION_JSON)
+                .param("username", "xyzz"))
+                .andExpect(status().isBadRequest())
                 .andReturn();
 
         String content = result.getResponse().getContentAsString();
     }
 
     @Test
-    public void testGetUserNames () throws Exception {
-
-        testLogin();
+    public void testGetIdByUsernameWithoutJwt () throws Exception {
 
         MvcResult result = this.mockMvc.perform(get("/users")
                 .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", jwt))
-                .andExpect(status().isOk())
+                .param("username", "michael"))
+                .andExpect(status().isForbidden())
                 .andReturn();
 
         String content = result.getResponse().getContentAsString();
