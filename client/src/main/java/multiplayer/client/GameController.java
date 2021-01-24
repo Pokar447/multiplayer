@@ -355,7 +355,6 @@ public class GameController implements Initializable {
 
     // Exit game handler
     public void exitGame (javafx.event.ActionEvent event) throws IOException {
-        client.statistics(event);
 
         try {
             HttpClient client = new DefaultHttpClient();
@@ -399,6 +398,7 @@ public class GameController implements Initializable {
 
         }
 
+        client.statistics(event);
     }
 
     // Move enemy player

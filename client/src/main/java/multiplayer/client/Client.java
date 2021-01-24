@@ -31,9 +31,11 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class Client extends Application {
 
@@ -59,6 +61,10 @@ public class Client extends Application {
     JSONObject historyJsonObject;
     @FXML
     public TableView<History> historyTable;
+    @FXML
+    public Text siegeTxt;
+    @FXML
+    public Text niederlagenTxt;
 //    @FXML
 //    public TableColumn<History, Integer> col1;
 //    @FXML
@@ -297,6 +303,14 @@ public class Client extends Application {
         ObservableList<History> history = getHistory();
 
         historyTable.setItems(history);
+
+        List<History> victoryList = history.stream().filter(historyInstance -> historyInstance.getUserHp() > 0).collect(Collectors.toList());
+
+        List<History> failureList = history.stream().filter( historyInstance -> historyInstance.getUserHp() == 0).collect(Collectors.toList());
+
+        siegeTxt.setText(String.valueOf(victoryList.size()));
+        niederlagenTxt.setText(String.valueOf(failureList.size()));
+
         historyTable.getColumns().addAll(col1, col2, col3, col4);
 
         Stage primaryStage = (Stage)((Node)event.getSource()).getScene().getWindow();
