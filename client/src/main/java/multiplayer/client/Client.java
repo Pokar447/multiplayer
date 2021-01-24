@@ -452,6 +452,12 @@ public class Client extends Application {
         String regex = "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%]).{8,20}$";
         boolean validPassword = isValidPassword(passwordString,regex);
 
+        if (usernameString.equals("")) {
+            registerErrorLbl.setVisible(true);
+            registerErrorLbl.setText("username cannot not be empty");
+            return;
+        }
+
         if (!validPassword) {
             registerErrorLbl.setVisible(true);
             registerErrorLbl.setText("password must have at least one numeric character, one lowercase character, one uppercase character, length should be between 8 and 20");

@@ -52,7 +52,7 @@ public class UserController {
             List<FieldError> errors = bindingResult.getFieldErrors();
             String errorMsg = "";
             for (FieldError e : errors){
-                errorMsg += e.getField() + ":" + e.getDefaultMessage();
+                errorMsg += e.getDefaultMessage();
             }
 
             return new ResponseEntity(errorMsg, HttpStatus.BAD_REQUEST);
