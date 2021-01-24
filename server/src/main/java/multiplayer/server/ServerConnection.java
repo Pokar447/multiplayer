@@ -56,7 +56,7 @@ class ServerConnection implements Runnable {
 
                     if (server.user2Ready == 0) {
                         server.user2Ready = dataInput.readInt();
-                        System.out.println("User 1 ready!");
+                        System.out.println("Player 1 ready!");
                         server.player2.sendUserReady();
                     }
 
@@ -71,7 +71,7 @@ class ServerConnection implements Runnable {
 
                     if (server.user1Ready == 0) {
                         server.user1Ready = dataInput.readInt();
-                        System.out.println("User 2 ready!");
+                        System.out.println("Player 2 ready!");
                         server.player1.sendUserReady();
                     }
                     if (server.player2CharacterId == 0) {
