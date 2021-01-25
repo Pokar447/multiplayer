@@ -50,8 +50,6 @@ class ServerConnection implements Runnable {
 
             while (true) {
 
-                System.out.println("Server connection is up!");
-
                 if (playerID == 1) {
 
                     if (server.user2Ready == 0) {
