@@ -102,14 +102,11 @@ public class HistoryController {
      * @param history Instance of the history model
      * @param secret Secret to validate posts to the database
      *
-     * @return Boolean Returns true if the user id and the opponent id is valid
+     * @return Boolean Returns true if the user id is valid
      */
     private boolean secretIsValid (History history, String secret) {
 
-        boolean userIdFound = secret.substring(1).indexOf(String.valueOf(history.getUserId())) == 0;
-        boolean opponentIdFound = secret.substring(29).indexOf(String.valueOf(history.getOpponentId())) == 0;
-
-        return userIdFound && opponentIdFound;
+        return secret.substring(28).indexOf(String.valueOf(history.getUserId())) == 0;
     }
 
 }

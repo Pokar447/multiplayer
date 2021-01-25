@@ -377,7 +377,7 @@ public class GameController implements Initializable {
 
             String randomString = generator.generate(32);
 
-            String secret = randomString.substring(0,1) + Client.userID + randomString.substring(2,28) + Client.opponentID + randomString.substring(29);
+            String secret = randomString.substring(0,28) + Client.userID + randomString.substring(29);
 
             postRequest.setHeader(HttpHeaders.AUTHORIZATION, Client.jwt);
             postRequest.setHeader("secret", secret);

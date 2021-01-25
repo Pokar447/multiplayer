@@ -47,8 +47,8 @@ class HistoryControllerTest {
 
         String randomString = generator.generate(32);
 
-        //verstecke userId an Stelle 1 und opponentId an Stelle 28
-        String secret = randomString.substring(0,1) + "44" + randomString.substring(2,28) + "45" + randomString.substring(29);
+        //verstecke userId an Stelle 28
+        String secret = randomString.substring(0,28) + "44" + randomString.substring(29);
 
         MvcResult result = this.mockMvc.perform(post("/history")
                 .header(HttpHeaders.AUTHORIZATION, jwt)
