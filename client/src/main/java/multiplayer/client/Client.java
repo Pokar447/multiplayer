@@ -82,6 +82,9 @@ public class Client extends Application {
     @FXML
     public BorderPane borderPane;
 
+    @FXML
+    public Button userReadyBtn;
+
     /**
      * @return playerID ID of the player
      */
@@ -229,6 +232,9 @@ public class Client extends Application {
      * @param event JavaFX event to be handled
      */
     public void userReady (javafx.event.ActionEvent event) throws IOException {
+
+        userReadyBtn.setDisable(true);
+        userReadyBtn.setText("waiting for other player...");
 
         clientConnection.sendUserReady();
 

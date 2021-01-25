@@ -21,7 +21,7 @@
              </ImageView>
 
              <HBox alignment="center" spacing="10.0">
-                <Button fx:id="submitBtn" mnemonicParsing="false" onAction="#userReady" text="Let's play!">
+                <Button fx:id="userReadyBtn" mnemonicParsing="false" onAction="#userReady" text="Let's play!">
                   <HBox.margin>
                      <Insets top="35.0" />
                   </HBox.margin></Button>
