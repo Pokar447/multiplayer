@@ -7,29 +7,39 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.util.Duration;
 
+/**
+ * Character factory pattern for instantiating different character types
+ *
+ * @author      Nora Kühnel <nora.kuhnel@stud.th-luebeck.de>
+ * @author      Jorn Ihlenfeldt <<jorn.ihlenfeldt@stud.th-luebeck.de>
+ *
+ * @version     1.0
+ */
 public class Character {
 
-    // Player Timelines
     public Timeline idleTimeline = new Timeline();
     public Timeline walkTimeline = new Timeline();
     public Timeline attackTimeline = new Timeline();
 
-    // Character Images
     public Image[] idle;
     public Image[] walk;
     public Image[] attack;
 
-    public int direction; //-1 -> links, 1 -> rechts
+    public int direction;
 
     public int lifepoints = 5;
 
-    // State Helper
     public boolean leftIsPressed = false;
     public boolean rightIsPressed = false;
     public boolean spaceIsPressed = false;
     public boolean walkIsActive = false;
     public boolean attackIsActive = false;
 
+    /**
+     * Creates characters based on the given string
+     *
+     * @param type Character type
+     */
     public void createCharacter(String type) {
         switch(type) {
             case "GOLEM":
@@ -66,7 +76,13 @@ public class Character {
         }
     }
 
-    // Default idle animation
+    /**
+     * Starts the countdown before the game starts
+     *
+     * @param player Imageview of the player
+     * @param idle Idle timeline
+     * @param  state Image array
+     */
     public void idleAnimation(ImageView player, Timeline idle, Image[] state) {
         if(attackIsActive == false) {
             stopAnimations(idle);
@@ -95,7 +111,14 @@ public class Character {
         }
     }
 
-    // Walk animation
+    /**
+     * Starts an animation
+     *
+     * @param player Imageview of the player
+     * @param idle Idle timeline
+     * @param  state Image array
+     * @param direction Direction the player faces
+     */
     public void startAnimation(ImageView player, Timeline idle, Image[] state, String direction) {
         System.out.println("1: " + state);
         if(walkIsActive == false && attackIsActive == false) {
@@ -153,7 +176,12 @@ public class Character {
 
     }
 
-    // Attack animation
+    /**
+     * Starts the attack animation
+     *
+     * @param player Imageview of the player
+     * @param  state Image array
+     */
     public void attackAnimation(ImageView player, Image[] state) {
         stopAnimations(idleTimeline);
         attackIsActive = true;
@@ -194,7 +222,11 @@ public class Character {
         });
     }
 
-    // Stop animations
+    /**
+     * Stops an animation and starts the idle animation
+     *
+     * @param idle Idle timeline
+     */
     public void stopAnimations(Timeline idle) {
         idle.stop();
         walkTimeline.stop();
