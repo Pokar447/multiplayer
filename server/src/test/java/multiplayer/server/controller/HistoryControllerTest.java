@@ -24,6 +24,7 @@ class HistoryControllerTest {
 
     String jwt;
 
+    //Funktioniert nur nachdem der Sign-Up Test im UserControllerTest gelaufen ist!
     @Test
     public void testLogin () throws Exception {
         MvcResult result = this.mockMvc.perform(post("/login")
