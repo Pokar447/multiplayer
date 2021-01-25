@@ -495,7 +495,7 @@ public class Client extends Application {
 
         if (!validPassword) {
             registerErrorLbl.setVisible(true);
-            registerErrorLbl.setText("password must have at least one numeric character, one lowercase character, one uppercase character, length should be between 8 and 20");
+            registerErrorLbl.setText("password must have at least one numeric character, one lowercase character, one uppercase character, one special character!@#$%, length should be between 8 and 20");
             return;
         }
 

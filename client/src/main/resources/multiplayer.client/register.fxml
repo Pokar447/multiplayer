@@ -39,7 +39,7 @@
             </HBox>
             <HBox alignment="CENTER" spacing="10.0">
                <children>
-                  <Button fx:id="cancelButton" mnemonicParsing="false" onAction="#cancel" text="cancel" />
+                  <Button fx:id="cancelButton" mnemonicParsing="false" onAction="#cancel" text="back" />
                   <Button fx:id="registerButton" mnemonicParsing="false" onAction="#sendRegisterUser" text="save" />
                </children>
                <opaqueInsets>
