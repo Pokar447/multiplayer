@@ -15,16 +15,35 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import static multiplayer.server.security.SecurityConstants.SIGN_UP_URL;
 
+/**
+ * Web Security class extending Spring Boots Web Security Configurer Adapter
+ *
+ * @author      Nora Kühnel <nora.kuhnel@stud.th-luebeck.de>
+ * @author      Jorn Ihlenfeldt <<jorn.ihlenfeldt@stud.th-luebeck.de>
+ *
+ * @version     1.0
+ */
 @EnableWebSecurity
 public class WebSecurity extends WebSecurityConfigurerAdapter {
     private UserDetailsServiceImpl userDetailsService;
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
+    /**
+     * Web Security constructor
+     *
+     * @param userDetailsService Instance of User Details Service
+     * @param bCryptPasswordEncoder Instance of BCrypt Password Encoder
+     */
     public WebSecurity(UserDetailsServiceImpl userDetailsService, BCryptPasswordEncoder bCryptPasswordEncoder) {
         this.userDetailsService = userDetailsService;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     }
 
+    /**
+     * Configures the HTTP Security settings
+     *
+     * @param http Instance of Spring Boots HTTP Security
+     */
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.cors().and().csrf().disable().authorizeRequests()
@@ -33,15 +52,24 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
                 .and()
                 .addFilter(new JWTAuthenticationFilter(authenticationManager()))
                 .addFilter(new JWTAuthorizationFilter(authenticationManager()))
-                // this disables session creation on Spring Security
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     }
 
+    /**
+     * Configures the password encoding for the user authentication
+     *
+     * @param auth Instance of Spring Boots Authentication Manager Builder
+     */
     @Override
     public void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(userDetailsService).passwordEncoder(bCryptPasswordEncoder);
     }
 
+    /**
+     * UrlBasedCorsConfigurationSource to configre URL patterns in requests
+     *
+     * @return source Instance of Spring Boots UrlBasedCorsConfigurationSource
+     */
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
