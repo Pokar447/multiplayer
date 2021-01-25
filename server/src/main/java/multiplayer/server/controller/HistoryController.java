@@ -54,7 +54,7 @@ public class HistoryController {
 
         if (secretIsValid) {
 
-        boolean userIdValid =userService.userIdExists((long) history.getUserId());
+        boolean userIdValid = userService.userIdExists((long) history.getUserId());
         boolean opponentIdValid = userService.userIdExists((long) history.getOpponentId());
 
             if (userIdValid && opponentIdValid) {

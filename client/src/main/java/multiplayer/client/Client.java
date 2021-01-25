@@ -53,7 +53,6 @@ public class Client extends Application {
     static int playerID;
     static int otherID;
     static int userID;
-    static File profileImg;
     static int opponentID;
     static int connectionStatus;
 

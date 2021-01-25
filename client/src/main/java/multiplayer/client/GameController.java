@@ -1,23 +1,15 @@
 package multiplayer.client;
 
-// Java imports
 import java.io.IOException;
 import java.net.*;
 import java.util.*;
 
-// JavaFX imports
-import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Bounds;
-import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.text.Text;
-import javafx.stage.Stage;
 import multiplayer.client.characters.Character;
 import org.apache.commons.text.RandomStringGenerator;
 import org.apache.http.HttpHeaders;
@@ -29,18 +21,23 @@ import org.apache.http.impl.client.DefaultHttpClient;
 
 import static org.apache.commons.text.CharacterPredicates.DIGITS;
 
+/**
+ * Game Controller for the actual game implementing Initializable
+ *
+ * @author      Nora Kühnel <nora.kuhnel@stud.th-luebeck.de>
+ * @author      Jorn Ihlenfeldt <<jorn.ihlenfeldt@stud.th-luebeck.de>
+ *
+ * @version     1.0
+ */
 public class GameController implements Initializable {
 
-    // General
     Client client = new Client();
     static Character myCharacter = new Character();
     static Character otherCharacter = new Character();
 
-    // Character choice
     public String myChoice;
     public String otherChoice;
 
-    // Player ImageViews
     public static ImageView myPlayer;
     public static ImageView otherPlayer;
     public ImageView player1;
@@ -52,25 +49,26 @@ public class GameController implements Initializable {
     public Text playerWonTxt;
     public Button exitGameBtn;
 
-    // Move Timer
     public Timer myMoveTimer;
     public Timer otherMoveTimer;
 
-    // Width & height of the usable stage for collision detection
     public static int stageWidth = 1200;
     public static int stageHeight = 720;
 
-    // State helper
     public boolean myIsMoving = false;
     public boolean otherIsMoving = false;
 
     private static int countdown = 10;
     public Text countdownTxt;
 
-    // Initialize client GUI
+    /**
+     * Initializes the actual game
+     *
+     * @param location Instance of URL
+     * @param resources Instance of ResourceBundle
+     */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        checkConnection();
         checkPlayer();
         myCharacter.createCharacter(myChoice);
         otherCharacter.createCharacter(otherChoice);
@@ -80,6 +78,9 @@ public class GameController implements Initializable {
         startCountdownTimer();
     }
 
+    /**
+     * Starts the countdown before the game starts
+     */
     private void startCountdownTimer () {
         Timer timer = new Timer();
         TimerTask task = new TimerTask() {
@@ -101,15 +102,9 @@ public class GameController implements Initializable {
         timer.schedule(task, 0, 1000);
     }
 
-    // Check client connection
-    public void checkConnection() {
-        if(client.getConnection() == 1) {
-        }
-        else {
-        }
-    }
-
-    // Check who is which player
+    /**
+     * Checks who is which player and character choice and direction
+     */
     public void checkPlayer() {
         if(client.getPlayerID() == 1) {
             myPlayer = player1;
@@ -128,7 +123,11 @@ public class GameController implements Initializable {
         }
     }
 
-    // Handle key press
+    /**
+     * Handles the key presses
+     *
+     * @param event Takes the Key Event
+     */
     public void keyPressed(KeyEvent event) {
         if (countdown == 0) {
             switch (event.getCode()) {
@@ -154,7 +153,11 @@ public class GameController implements Initializable {
         }
     }
 
-    // Handle key release
+    /**
+     * Handles the key releases
+     *
+     * @param event Takes the Key Event
+     */
     public void keyRelease(KeyEvent event) {
         switch (event.getCode()) {
             case LEFT:
@@ -178,6 +181,13 @@ public class GameController implements Initializable {
         }
     }
 
+    /**
+     * Turns the character in game when the user turns direction
+     *
+     * @param imageView Image View with the character
+     * @param direction Direction so character is facing
+     * @param enemyMovement Enemy movement to turn to enemy character
+     */
     void setScale (ImageView imageView, int direction, boolean enemyMovement) {
         if (!enemyMovement) {
             if (direction < 0) {
@@ -216,7 +226,11 @@ public class GameController implements Initializable {
 
     }
 
-    // Move player
+    /**
+     * Moves the player on the game screen
+     *
+     * @param key Key that was pressed
+     */
     public void movePlayer(String key) {
         if(myIsMoving == false) {
             myIsMoving = true;
@@ -266,7 +280,9 @@ public class GameController implements Initializable {
         }
     }
 
-    // Stop player
+    /**
+     * Stops the player movement animation on the game screen
+     */
     public void stopPlayer() {
         if(myIsMoving == true) {
             myCharacter.rightIsPressed = false;
@@ -279,7 +295,9 @@ public class GameController implements Initializable {
         }
     }
 
-    // Player attack
+    /**
+     * Lets the character execute an attack
+     */
     public void playerAttack() {
         myCharacter.spaceIsPressed = true;
         myCharacter.attackAnimation(myPlayer, myCharacter.attack);
@@ -297,11 +315,19 @@ public class GameController implements Initializable {
         }
     }
 
+    /**
+     * Handles the collision detection when a player attacks
+     *
+     * @param attackingPlayer Player that is executing an attack
+     * @param attackingCharacter Character that is executing an attack
+     * @param player2 Player that is being attacked
+     * @param otherCharacter Character that is being attacked
+     *
+     * @return Boolean True or False wether the attack was hitting the enemy
+     */
     private boolean collisionDetected (ImageView attackingPlayer, Character attackingCharacter, ImageView player2, Character otherCharacter) {
 
         boolean directionOk = checkDirection(attackingPlayer, attackingCharacter, player2);
-
-        System.out.println("directionOk " + directionOk);
 
         if (directionOk) {
             Bounds player1Bounds = attackingPlayer.getBoundsInParent();
@@ -315,16 +341,26 @@ public class GameController implements Initializable {
         return false;
     }
 
+    /**
+     * Checks the direction where an attack is made
+     *
+     * @param attackingPlayer Player that is executing an attack
+     * @param attackingCharacter Character that is executing an attack
+     * @param player2 Player that is being attacked
+     *
+     * @return Boolean True or False wether the attack is facing the enemy or not
+     */
     private boolean checkDirection (ImageView attackingPlayer, Character attackingCharacter, ImageView player2) {
         if (attackingCharacter.direction > 0) {
-            // Guckt nach rechts
             return attackingPlayer.getLayoutX() < player2.getLayoutX();
         } else {
-            // Guckt nach links
             return attackingPlayer.getLayoutX() > player2.getLayoutX();
         }
     }
 
+    /**
+     * Starts the countdown when a game is finished
+     */
     private void startGameOverTimer () {
         countdown = 5;
         Timer gameOverTimer = new Timer();
@@ -342,20 +378,24 @@ public class GameController implements Initializable {
                     gameOverTimer.purge();
                     exitGameBtn.setVisible(true);
                 }
-                System.out.println(countdown);
             }
         };
         gameOverTimer.schedule(task, 0, 1000);
     }
 
-    // Stop player attack
+    /**
+     * Stop the attack animation of a character
+     */
     public void stopPlayerAttack() {
         myCharacter.spaceIsPressed = false;
     }
 
-    // Exit game handler
+    /**
+     * Handles the exit game button, send a POST request with the current game statistics and redirects to statistics section
+     *
+     * @param event JavaFX event
+     */
     public void exitGame (javafx.event.ActionEvent event) throws IOException {
-
         try {
             HttpClient client = new DefaultHttpClient();
             HttpPost postRequest = new HttpPost(
@@ -386,8 +426,6 @@ public class GameController implements Initializable {
 
             int responseStatus = response.getStatusLine().getStatusCode();
 
-            System.out.println(responseStatus);
-
         } catch (MalformedURLException e) {
 
             e.printStackTrace();
@@ -401,7 +439,11 @@ public class GameController implements Initializable {
         client.statistics(event);
     }
 
-    // Move enemy player
+    /**
+     * Moves the enemy based on the pressed key number that was received from the server
+     *
+     * @param keyNumber Key number that was pressed by the other client
+     */
     public void moveEnemy(int keyNumber) {
         if(otherIsMoving == false) {
             otherIsMoving = true;
@@ -415,7 +457,6 @@ public class GameController implements Initializable {
                     setScale (otherPlayer, otherCharacter.direction, true);
 
                     otherCharacter.startAnimation(otherPlayer, otherCharacter.idleTimeline, otherCharacter.walk, "LEFT");
-                    System.out.println("0: " + otherCharacter.walk);
                     otherMoveTimer.scheduleAtFixedRate(new TimerTask() {
                         @Override
                         public void run() {
@@ -451,7 +492,9 @@ public class GameController implements Initializable {
         }
     }
 
-    // Stop enemy movement
+    /**
+     * Stops the enemy movement
+     */
     public void stopEnemy() {
         if(otherIsMoving == true) {
             otherCharacter.rightIsPressed = false;
@@ -464,7 +507,11 @@ public class GameController implements Initializable {
         }
     }
 
-    // Enemy attack
+    /**
+     * Executes an enemy attack
+     *
+     * @param controller Instance of the Game Controller
+     */
     public void enemyAttack(GameController controller) {
         otherCharacter.spaceIsPressed = true;
         otherCharacter.attackAnimation(otherPlayer, otherCharacter.attack);
@@ -482,7 +529,9 @@ public class GameController implements Initializable {
         }
     }
 
-    // Stop enemy attack
+    /**
+     * Stops the enemy attack
+     */
     public void stopEnemyAttack() {
         otherCharacter.spaceIsPressed = false;
     }
