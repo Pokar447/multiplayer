@@ -1,8 +1,10 @@
 package multiplayer.client;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -11,6 +13,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
@@ -75,6 +78,9 @@ public class Client extends Application {
     public Button characterSubmitBtn;
     public TextField email;
     public Label registerErrorLbl;
+
+    @FXML
+    public BorderPane borderPane;
 
     /**
      * @return playerID ID of the player
@@ -218,7 +224,7 @@ public class Client extends Application {
     }
 
     /**
-     * Set the ready state for the user
+     * Set the ready state for the user and start the game when other player is ready
      *
      * @param event JavaFX event to be handled
      */
@@ -227,11 +233,30 @@ public class Client extends Application {
         clientConnection.sendUserReady();
 
         otherUserReady = -1;
-        otherUserReady = getOtherUserReady();
+
+        Thread t = new Thread() {
+            public void run() {
+
+                while (otherUserReady == -1) {
+                    otherUserReady = getOtherUserReady();
+                }
+
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            characterCoice (event);
+                        } catch (IOException exception) {
+                            exception.printStackTrace();
+                        }
+                    }
+                });
+
+            }
+        };
+        t.start();
 
         System.out.println("Other user ready!");
-
-        characterCoice (event);
     }
 
     /**
@@ -297,7 +322,7 @@ public class Client extends Application {
         System.out.println("Choose your character...");
 
         Parent lobby = FXMLLoader.load(getClass().getResource("/multiplayer.client/characterChoice.fxml"));
-        Stage primaryStage = (Stage)((Node)event.getSource()).getScene().getWindow();
+        Stage primaryStage = (Stage) borderPane.getScene().getWindow();
         Scene scene = new Scene(lobby);
         primaryStage.setScene(scene);
         primaryStage.show();
@@ -344,7 +369,7 @@ public class Client extends Application {
         // Opponent name column
         TableColumn<History, Integer> col2 = new TableColumn<>("Opponent name");
         col2.setMinWidth(150);
-        col2.setCellValueFactory(new PropertyValueFactory<>("opponentname"));
+        col2.setCellValueFactory(new PropertyValueFactory<>("opponentName"));
         // Opponent HP column
         TableColumn<History, Integer> col3 = new TableColumn<>("Opponent HP");
         col3.setMinWidth(150);
