@@ -82,9 +82,12 @@ public class HistoryController {
     @Path("{userid}")
     public ResponseEntity getByUserId(@RequestParam("userid") Integer userId) {
         if (userService.userIdExists(Long.valueOf(userId))) {
-            List<History> history = historyRepository.findByUserId(userId);
-            if (history != null) {
-                return new ResponseEntity(history, HttpStatus.OK);
+            List<History> historyList = historyRepository.findByUserId(userId);
+            for (History currHistory : historyList) {
+                currHistory.setOpponentname(userService.getUsernameById( (long) currHistory.getOpponentId()));
+            }
+            if (historyList != null) {
+                return new ResponseEntity(historyList, HttpStatus.OK);
             } else {
                 return new ResponseEntity(HttpStatus.BAD_REQUEST);
             }

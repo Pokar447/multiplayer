@@ -44,4 +44,6 @@ public class History {
     @Column
     private LocalDateTime dateTime = LocalDateTime.now();
 
+    @Transient
+    String opponentname;
 }

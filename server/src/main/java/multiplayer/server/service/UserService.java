@@ -56,4 +56,20 @@ public class UserService {
         return applicationUserRepository.findByEmail(email);
     }
 
+    /**
+     * Get a user by its user id
+     *
+     * @param id User id to get the user by
+     *
+     * @return username that corresponds to the given user id
+     */
+    public String getUsernameById (@PathVariable Long id) {
+
+        Optional<ApplicationUser> user = applicationUserRepository.findById(id);
+        if (user.isPresent()) {
+            return user.get().getUsername();
+        }
+        return "unknown";
+    }
+
 }

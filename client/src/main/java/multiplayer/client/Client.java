@@ -289,10 +289,10 @@ public class Client extends Application {
         TableColumn<History, Integer> col1 = new TableColumn<>("My HP");
         col1.setMinWidth(150);
         col1.setCellValueFactory(new PropertyValueFactory<>("userHp"));
-        // Opponent ID column
-        TableColumn<History, Integer> col2 = new TableColumn<>("Opponent ID");
+        // Opponent name column
+        TableColumn<History, Integer> col2 = new TableColumn<>("Opponent name");
         col2.setMinWidth(150);
-        col2.setCellValueFactory(new PropertyValueFactory<>("opponentId"));
+        col2.setCellValueFactory(new PropertyValueFactory<>("opponentname"));
         // Opponent HP column
         TableColumn<History, Integer> col3 = new TableColumn<>("Opponent HP");
         col3.setMinWidth(150);
@@ -326,7 +326,13 @@ public class Client extends Application {
         ObservableList<History> history = FXCollections.observableArrayList();
         for(int i=0; i<historyJsonArray.length(); i++) {
             historyJsonObject = historyJsonArray.getJSONObject(i);
-            history.add(new History(historyJsonObject.optInt("id"), historyJsonObject.optInt("userId"), historyJsonObject.optInt("opponentId"), historyJsonObject.optInt("userHp"), historyJsonObject.optInt("opponentHp"), historyJsonObject.optString("dateTime")));
+            history.add(new History(historyJsonObject.optInt("id")
+                    , historyJsonObject.optInt("userId")
+                    , historyJsonObject.optInt("opponentId")
+                    , historyJsonObject.optInt("userHp")
+                    , historyJsonObject.optInt("opponentHp")
+                    , historyJsonObject.optString("dateTime")
+                    , historyJsonObject.optString("opponentname")));
         }
         return history;
     }
