@@ -3,7 +3,6 @@ package multiplayer.client;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -15,7 +14,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import org.apache.commons.validator.routines.EmailValidator;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -26,25 +24,24 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.json.*;
-import org.apache.commons.io.FileUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.security.MessageDigest;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+/**
+ * Main Client Application class
+ *
+ * @author      Nora Kühnel <nora.kuhnel@stud.th-luebeck.de>
+ * @author      Jorn Ihlenfeldt <<jorn.ihlenfeldt@stud.th-luebeck.de>
+ *
+ * @version     1.0
+ */
 public class Client extends Application {
 
     static ClientConnection clientConnection;
@@ -68,11 +65,8 @@ public class Client extends Application {
 
     JSONArray historyJsonArray;
     JSONObject historyJsonObject;
-    @FXML
     public TableView<History> historyTable;
-    @FXML
     public Text siegeTxt;
-    @FXML
     public Text niederlagenTxt;
 
     public TextField username;
@@ -82,13 +76,21 @@ public class Client extends Application {
     public TextField email;
     public Label registerErrorLbl;
 
-    // Getter & Setter
+    /**
+     * @return playerID ID of the player
+     */
     public int getPlayerID() {
         return playerID;
     }
+    /**
+     * @return character Character of the player
+     */
     public String getMyCharacter() {
         return character;
     }
+    /**
+     * @return character Character of the other player
+     */
     public String getOtherCharacter() {
         switch (enemyCharacterId) {
             case 1:
@@ -106,21 +108,36 @@ public class Client extends Application {
         }
         return enemyCharacter;
     }
+    /**
+     * @return characterId Character id of the other player
+     */
     public int getOtherCharacterId() {
         return clientConnection.receiveCharacter();
     }
+    /**
+     * @return opponentId ID of the other player
+     */
     public int getOpponentId() {
         return clientConnection.receiveUserId();
     }
+    /**
+     * @return readyState Ready state of the other player
+     */
     public int getOtherUserReady() {
         return clientConnection.receiveUserReady();
     }
     public int getConnection() {
         return connectionStatus;
     }
+    /**
+     * @param number Button number that was clicked by the player
+     */
     public void setButtonNum(int number) {
         clientConnection.sendButtonNum(number);
     }
+    /**
+     * Gets the enemy movement
+     */
     public void getEnemyMove() {
         /**
          * 0 == LEFT (press)
@@ -149,7 +166,9 @@ public class Client extends Application {
 
     }
 
-    // Enemy update Thread
+    /**
+     * Thread used to update the enemy movement
+     */
     public void startUpdateThread() {
         Thread thread = new Thread(() -> {
             while (true) {
@@ -159,12 +178,18 @@ public class Client extends Application {
         thread.start();
     }
 
-    // Connect to server
+    /**
+     * Instantiates the connection to the server
+     */
     public void connectToServer() {
         clientConnection = new ClientConnection();
     }
 
-    // Start GUI
+    /**
+     * Starts the JavaFX view
+     *
+     * @param stage Initial JavaFX stage
+     */
     @Override
     public void start(Stage stage) throws Exception {
         Parent login = FXMLLoader.load(getClass().getResource("/multiplayer.client/login.fxml"));
@@ -174,6 +199,11 @@ public class Client extends Application {
         stage.show();
     }
 
+    /**
+     * Starts the JavaFX game view
+     *
+     * @param event JavaFX event to be handled
+     */
     public void game (javafx.event.ActionEvent event) throws IOException {
         System.out.println("start game...");
 
@@ -187,6 +217,11 @@ public class Client extends Application {
         scene.getRoot().requestFocus();
     }
 
+    /**
+     * Set the ready state for the user
+     *
+     * @param event JavaFX event to be handled
+     */
     public void userReady (javafx.event.ActionEvent event) throws IOException {
 
         clientConnection.sendUserReady();
@@ -199,6 +234,11 @@ public class Client extends Application {
         characterCoice (event);
     }
 
+    /**
+     * Send player information when ready
+     *
+     * @param event JavaFX event to be handled
+     */
     public void playerReady (javafx.event.ActionEvent event) throws IOException {
 
         if (characterId == 0) {
@@ -217,6 +257,11 @@ public class Client extends Application {
         game(event);
     }
 
+    /**
+     * Sets the chosen characters inside the JavaFX game view
+     *
+     * @param event JavaFX event to be handled
+     */
     public void setPlayer (javafx.event.ActionEvent event) {
 
         Node source = (Node) event.getSource();
@@ -243,7 +288,11 @@ public class Client extends Application {
         characterSubmitBtn.setDisable(false);
     }
 
-    // Character choice handler
+    /**
+     * Opens the JavaFX character choice view
+     *
+     * @param event JavaFX event to be handled
+     */
     public void characterCoice (javafx.event.ActionEvent event) throws IOException {
         System.out.println("Choose your character...");
 
@@ -254,7 +303,11 @@ public class Client extends Application {
         primaryStage.show();
     }
 
-    // Statistics handler
+    /**
+     * Calls the user history from the server and opens the JavaFX statistics view
+     *
+     * @param event JavaFX event to be handled
+     */
     public void statistics (javafx.event.ActionEvent event) throws IOException {
         System.out.println("Statistics...");
 
@@ -321,6 +374,11 @@ public class Client extends Application {
 
     }
 
+    /**
+     * Creates an observable list for the history table inside the statistics view
+     *
+     * @return history Observable list containing the user history
+     */
     public ObservableList<History> getHistory() {
         ObservableList<History> history = FXCollections.observableArrayList();
         for(int i=0; i<historyJsonArray.length(); i++) {
@@ -336,7 +394,11 @@ public class Client extends Application {
         return history;
     }
 
-    // Login handler
+    /**
+     * Handles the login of a user
+     *
+     * @param event JavaFX event to be handled
+     */
     public void login(javafx.event.ActionEvent event) throws IOException {
         System.out.println("Logged in as Player #" + this.getPlayerID());
 
@@ -353,7 +415,11 @@ public class Client extends Application {
         avatarImgView.setImage(new Image(new ByteArrayInputStream(profileImgByte)));
     }
 
-    // Authentication handler
+    /**
+     * Take the user password and hashes it, calls login function
+     *
+     * @param event JavaFX event to be handled
+     */
     public void auth(javafx.event.ActionEvent event) throws IOException {
 
         String pwHash = new CustomPasswordEncryptor().encryptPassword (password.getText());
@@ -371,7 +437,11 @@ public class Client extends Application {
         }
     }
 
-    // Logout handler
+    /**
+     * Handles the logout
+     *
+     * @param event JavaFX event to be handled
+     */
     public void logout(javafx.event.ActionEvent event) throws IOException {
         System.out.println("Logged out...");
 
@@ -383,7 +453,13 @@ public class Client extends Application {
         primaryStage.show();
     }
 
-    // Send credentials for authentication
+    /**
+     * Sends the user credentials to the server
+     *
+     * @param pwHash Hashed user password
+     *
+     * @return Boolean True or false wether the authentication was successful or not
+     */
     public boolean sendAuth (String pwHash) {
 
         try {
@@ -415,6 +491,13 @@ public class Client extends Application {
         return false;
     }
 
+    /**
+     * Gets the user id based on the user name during the login
+     *
+     * @param username User name to the user id for
+     *
+     * @return Boolean True or false wether a user id exists for the user name
+     */
     public boolean getUserId(String username) {
         try {
             HttpClient client = new DefaultHttpClient();
@@ -445,6 +528,11 @@ public class Client extends Application {
         return false;
     }
 
+    /**
+     * Receives the default profile picture during the login
+     *
+     * @return byte[] Byte array that contains the bytes of the profile picture
+     */
     public byte[] getProfileImg() {
         try {
             HttpClient client = new DefaultHttpClient();
@@ -466,7 +554,9 @@ public class Client extends Application {
         return new byte[0];
     }
 
-    // Send credentials to register new user
+    /**
+     * Sends the user credentials to register a new user
+     */
     public void sendRegisterUser () {
 
         clearInfo();
@@ -480,7 +570,7 @@ public class Client extends Application {
             Must have at least one numeric character
             Must have at least one lowercase character
             Must have at least one uppercase character
-            Must have at least one special symbol among @#$%
+            Must have at least one special symbol among !@#$%
             Password length should be between 8 and 20
         */
         String regex = "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%]).{8,20}$";
@@ -542,11 +632,19 @@ public class Client extends Application {
         }
     }
 
+    /**
+     * Clears the info label
+     */
     private void clearInfo () {
         registerErrorLbl.setVisible(false);
         registerErrorLbl.setText("");
     }
 
+    /**
+     * Starts the JavaFX register view
+     *
+     * @param event JavaFX event to be handled
+     */
     public void register (javafx.event.ActionEvent event) throws IOException {
         System.out.println("register ()");
 
@@ -556,6 +654,11 @@ public class Client extends Application {
         primaryStage.show();
     }
 
+    /**
+     * Starts the JavaFX lobby view when the user clicked the cancel button
+     *
+     * @param event JavaFX event to be handled
+     */
     public void cancel(javafx.event.ActionEvent event) throws IOException {
         Parent login = FXMLLoader.load(getClass().getResource("/multiplayer.client/login.fxml"));
         Stage primaryStage = (Stage)((Node)event.getSource()).getScene().getWindow();
@@ -563,7 +666,9 @@ public class Client extends Application {
         primaryStage.show();
     }
 
-    // Main
+    /**
+     * Main methode of the Client Application
+     */
     public static void main(String[] args) {
         Client client = new Client();
         client.connectToServer();
