@@ -1,41 +1,39 @@
 package multiplayer.server.model;
 
 import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
-import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 
+/**
+ * Represents a user in the application
+ *
+ * @author      Nora Kühnel <nora.kuhnel@stud.th-luebeck.de>
+ * @author      Jorn Ihlenfeldt <<jorn.ihlenfeldt@stud.th-luebeck.de>
+ *
+ * @version     1.0
+ */
 @Getter
+@Setter
 @Entity
 public class ApplicationUser {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    long id;
+    private long id;
 
-    @Length(min = 3, max = 15, message = "username length must be between 3 and 15") // -> zur Validierung gedacht!!!
-    @NotEmpty(message = "username cannot not be empty")
+    @Length(min = 3, max = 15, message = "Username length must be between 3 and 15!") // -> zur Validierung gedacht!!!
+    @NotEmpty(message = "Username cannot not be empty!")
     @Column(length = 100, nullable = false, unique = true) // -> beschreibt wie der Attribut in DB angelegt wird. Nicht zur Validierung gedacht!!!
-    String username;
+    private String username;
 
-    @NotEmpty(message = "email cannot not be empty")
+    @NotEmpty(message = "Email cannot not be empty!")
     @Column(length = 100, nullable = false, unique = true)
-    String email;
+    private String email;
 
-    @NotEmpty(message = "password cannot not be empty")
+    @NotEmpty(message = "Password cannot not be empty!")
     @Column(length = 100, nullable = false)
-    String password;
+    private String password;
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
 }

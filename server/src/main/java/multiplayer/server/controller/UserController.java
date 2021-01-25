@@ -19,9 +19,16 @@ import javax.ws.rs.PathParam;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.List;
 
+/**
+ * Application user controller for receiving and responding REST API calls
+ *
+ * @author      Nora Kühnel <nora.kuhnel@stud.th-luebeck.de>
+ * @author      Jorn Ihlenfeldt <<jorn.ihlenfeldt@stud.th-luebeck.de>
+ *
+ * @version     1.0
+ */
 @RestController
 @RequestMapping("/users")
 public class UserController {
@@ -32,12 +39,26 @@ public class UserController {
     private ApplicationUserRepository applicationUserRepository;
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
+    /**
+     * Application user controller constructor
+     *
+     * @param applicationUserRepository Instance of the application user repository
+     * @param bCryptPasswordEncoder Instance of the BCryptPasswordEncoder
+     */
     public UserController(ApplicationUserRepository applicationUserRepository,
                           BCryptPasswordEncoder bCryptPasswordEncoder) {
         this.applicationUserRepository = applicationUserRepository;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     }
 
+    /**
+     * POST mapping to register a new user and store in the database
+     *
+     * @param user Instance of the application user model
+     * @param bindingResult Result of the application user binding
+     *
+     * @return ResponseEntity Response to a POST request
+     */
     @PostMapping("/sign-up")
     public ResponseEntity signUp(@Valid @RequestBody ApplicationUser user, BindingResult bindingResult) {
 
@@ -65,6 +86,13 @@ public class UserController {
         return new ResponseEntity(HttpStatus.OK);
     }
 
+    /**
+     * GET mapping to get the user id by a user name
+     *
+     * @param username User name to get the user id for
+     *
+     * @return ResponseEntity Response to a GET request
+     */
     @GetMapping
     @Path("{username}")
     public ResponseEntity getIdByUsername(@PathParam("username") String username) {
@@ -76,28 +104,16 @@ public class UserController {
         }
     }
 
+    /**
+     * GET mapping to get the default profile picture from the server
+     *
+     * @return ResponseEntity Response to a GET request
+     */
     @GetMapping("/image")
     public ResponseEntity getImage() throws IOException {
         File img = new ClassPathResource("images/profile_picture.png").getFile();
         byte[] fileContent = Files.readAllBytes(img.toPath());
         return new ResponseEntity(fileContent, HttpStatus.OK);
     }
-
-//    @RequestMapping(value = "/image-manual-response", method = RequestMethod.GET)
-//    public void getImageAsByteArray(HttpServletResponse response) throws IOException {
-//        Image in = new Image(getClass().getResource("/images/profile_picture.png").toString());
-//        response.setContentType(MediaType.IMAGE_PNG_VALUE);
-//        IOUtils.copy(in, response.getOutputStream());
-//    }
-
-//    @GetMapping(
-//            value = "/get-file",
-//            produces = MediaType.APPLICATION_OCTET_STREAM_VALUE
-//    )
-//    public @ResponseBody byte[] getFile() throws IOException {
-//        InputStream in = getClass()
-//                .getResourceAsStream("images/profile_picture.png");
-//        return IOUtils.toByteArray(in);
-//    }
 
 }
